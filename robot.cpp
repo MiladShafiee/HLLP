@@ -2,7 +2,7 @@
 
 Robot::Robot(QObject *parent) : QObject(parent)
 {
-    QString address="..//SURENA4Locomotion//RobotData//test.txt";
+    QString address="..//HLLP//RobotData//test.txt";
     if (!FileExists(address))
     {
         qWarning()<<"Invalid Robot data Path:"<<address;
@@ -16,8 +16,10 @@ Robot::Robot(QObject *parent) : QObject(parent)
 
     foreach (QByteArray v, values) {
         qDebug()<<"input method="<<v;
-        MatrixXd mat= Convert2Matrix(v);
-
+        MatrixXd mat= ExtractionOfMatrix(v);
+        //qDebug()<<Matrix2;
+        MatrixXd gg=Rodrigues(mat,20);
+        //qDebug()<<gg;
     }
 
     file.close();
@@ -55,6 +57,7 @@ QList <QByteArray> Robot::GetContentOfRobot(QString name,QByteArray content)
 
 }
 
+
 bool Robot::FileExists(QString path) {
     QFileInfo check_file(path);
     // check if file exists and if yes: Is it really a file and no directory?
@@ -65,30 +68,55 @@ bool Robot::FileExists(QString path) {
     }
 }
 
-MatrixXd Robot::Convert2Matrix(QByteArray data)
+MatrixXd Robot::ExtractionOfMatrix(QByteArray data)
 {
     MatrixXd mat;
     QByteArray insideBrackets=data.split(']')[0];
     insideBrackets= insideBrackets.split('[')[1];
     QList <QByteArray> rows=insideBrackets.split(';');
-        QList <QByteArray> columns=rows[0].split(',');
+    QList <QByteArray> columns=rows[0].split(',');
 
-      mat.resize(rows.length(),columns.length());
+    mat.resize(rows.length(),columns.length());
 
-      //////initial mat values
+    //////initial mat values
     for (int i = 0; i < rows.length(); i++) {
-          QList <QByteArray> currentCols=rows[i].split(',');
-          for (int j = 0; j < currentCols.length(); j++) {
-                  mat(i,j) = currentCols[j].toDouble();
+        QList <QByteArray> currentCols=rows[i].split(',');
+        for (int j = 0; j < currentCols.length(); j++) {
+            mat(i,j) = currentCols[j].toDouble();
 
-          }
+        }
     }
 
 
-    qDebug()<<insideBrackets;
+    //    qDebug()<<insideBrackets<<"bale";
 
     //mat(0,0) = 0;
 
     return mat;
 }
 
+MatrixXd Robot::Rodrigues(MatrixXd omega,double angle)
+{
+    MatrixXd rotation;
+    double normOfOmega=omega.norm();
+
+    if (!normOfOmega<std::numeric_limits<double>::epsilon()) {
+
+        MatrixXd rotation= MatrixXd::Identity(3,3);
+        //      for (int var = 0; var < rotation.rows(); ++var) {
+        //          for (int var2 = 0; var2 < rotation.cols(); ++var2) {
+        //              qDebug()<<rotation(var,var2);
+        //          }
+        //      }
+
+    } else {
+        MatrixXd NormalizedAxisRotation=omega/normOfOmega;
+        double AmountOfRotation=normOfOmega*angle;
+        MatrixXd SkewSymMatrixOfVector;
+        SkewSymMatrixOfVector<<0, -NormalizedAxisRotation(3), NormalizedAxisRotation(2),
+                NormalizedAxisRotation(3), 0, -NormalizedAxisRotation(1)
+                -NormalizedAxisRotation(2),  NormalizedAxisRotation(1), 0;
+        rotation=MatrixXd::Identity(3,3)+SkewSymMatrixOfVector*qSin(AmountOfRotation)+(SkewSymMatrixOfVector*SkewSymMatrixOfVector)*(1-qCos(AmountOfRotation));
+    }
+       return rotation;
+}

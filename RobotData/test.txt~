@@ -157,7 +157,7 @@ LinearVelocityInWorldCoordinate=[1;2;3]
 momentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
-name=LLEG_J2
+name=jLLEG_J2
 ID=10 
 sisterID=0
 childID=11
