@@ -10,6 +10,10 @@ class Link : public QObject
 
 public:
     explicit Link(QObject *parent = nullptr);
+    QString GetName();
+    void SetName(QString name);
+    Link(QString name, int IDofLink,int IDofSyster,int IDofChild, int IDofMother,double AngleOfJoint,MatrixXd LocalAxisVectorOfJoint, MatrixXd PositionRelative2ParentOfJoint);
+
     double JointAngle;
     double JointVelocity;
     double JointAcceleration;

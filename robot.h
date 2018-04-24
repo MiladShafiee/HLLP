@@ -16,9 +16,10 @@ class Robot : public QObject
     QList<QByteArray> GetContentOfRobot(QString name, QByteArray content);
     MatrixXd ExtractionOfMatrix(QByteArray data);
     MatrixXd Rodrigues(MatrixXd omega, double angle);
+    int CreateRobotLinks(QByteArray content);
 public:
     explicit Robot(QObject *parent = nullptr);
-
+    QList<Link*> Links;
 signals:
 
 public slots:

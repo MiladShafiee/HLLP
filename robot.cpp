@@ -1,4 +1,4 @@
-#include "robot.h"
+﻿#include "robot.h"
 
 Robot::Robot(QObject *parent) : QObject(parent)
 {
@@ -11,16 +11,15 @@ Robot::Robot(QObject *parent) : QObject(parent)
     QFile file(address);
     file.open(QFile::ReadWrite);
     QByteArray content = file.readAll();
-
     QList<QByteArray> values= GetContentOfRobot("AngularVelocityInWorldCoordinate",content);
-
-    foreach (QByteArray v, values) {
-        qDebug()<<"input method="<<v;
-        MatrixXd mat= ExtractionOfMatrix(v);
-        //qDebug()<<Matrix2;
-        MatrixXd gg=Rodrigues(mat,20);
-        //qDebug()<<gg;
-    }
+    int milad=CreateRobotLinks( content );
+    //    foreach (QByteArray v, values) {
+    //        qDebug()<<"input method="<<v;
+    //        MatrixXd mat= ExtractionOfMatrix(v);
+    //        //qDebug()<<Matrix2;
+    //        MatrixXd gg=Rodrigues(mat,20);
+    //        //qDebug()<<gg;
+    //    }
 
     file.close();
 
@@ -48,13 +47,9 @@ QList <QByteArray> Robot::GetContentOfRobot(QString name,QByteArray content)
         {
             qDebug()<<"warning:expected '=' after value"<<name;
         }
-
-
-
         index++;
     }
     return result;
-
 }
 
 
@@ -88,10 +83,6 @@ MatrixXd Robot::ExtractionOfMatrix(QByteArray data)
     }
 
 
-    //    qDebug()<<insideBrackets<<"bale";
-
-    //mat(0,0) = 0;
-
     return mat;
 }
 
@@ -103,11 +94,7 @@ MatrixXd Robot::Rodrigues(MatrixXd omega,double angle)
     if (!normOfOmega<std::numeric_limits<double>::epsilon()) {
 
         MatrixXd rotation= MatrixXd::Identity(3,3);
-        //      for (int var = 0; var < rotation.rows(); ++var) {
-        //          for (int var2 = 0; var2 < rotation.cols(); ++var2) {
-        //              qDebug()<<rotation(var,var2);
-        //          }
-        //      }
+
 
     } else {
         MatrixXd NormalizedAxisRotation=omega/normOfOmega;
@@ -118,5 +105,51 @@ MatrixXd Robot::Rodrigues(MatrixXd omega,double angle)
                 -NormalizedAxisRotation(2),  NormalizedAxisRotation(1), 0;
         rotation=MatrixXd::Identity(3,3)+SkewSymMatrixOfVector*qSin(AmountOfRotation)+(SkewSymMatrixOfVector*SkewSymMatrixOfVector)*(1-qCos(AmountOfRotation));
     }
-       return rotation;
+    return rotation;
 }
+
+
+int Robot::CreateRobotLinks(QByteArray content )
+{
+    QList<QByteArray> NameOfLinks= GetContentOfRobot("Name",content);
+    QList<QByteArray> IDofLink= GetContentOfRobot("LinkID",content);
+    QList<QByteArray> IDofSister= GetContentOfRobot("SisterID",content);
+    QList<QByteArray> IDofChild= GetContentOfRobot("ChildID",content);
+    QList<QByteArray> IDofMother= GetContentOfRobot("MotherID",content);
+    QList<QByteArray> AngleOfJoint= GetContentOfRobot("JointAngle",content);
+    QList<QByteArray> LocalAxisVectorOfJoint= GetContentOfRobot("JointAxisVectorLocal",content);
+    QList<QByteArray> PositionRelative2ParentOfJoint= GetContentOfRobot("JointPositionRelative2Parent",content);
+
+
+
+
+    for (int index = 0; index < NameOfLinks.count(); index++) {
+
+        QString linkName=QString::fromLatin1(NameOfLinks[index].data());
+        int iDofSister=QString::fromLatin1(IDofSister[index].data()).toInt();
+        int iDofChild=QString::fromLatin1(IDofChild[index].data()).toInt();
+        int iDofLink=QString::fromLatin1(IDofLink[index].data()).toInt();
+        double angleOfJoint=QString::fromLatin1(AngleOfJoint[index].data()).toDouble();
+        int iDofMother=QString::fromLatin1(IDofMother[index].data()).toInt();
+        MatrixXd localAxisVectorOfJoint= ExtractionOfMatrix(LocalAxisVectorOfJoint[index]);
+        MatrixXd positionRelative2ParentOfJoint= ExtractionOfMatrix(PositionRelative2ParentOfJoint[index]);
+
+
+        if (index==0) {
+
+        }
+
+
+
+        Link *templlink=new Link(linkName,iDofLink,iDofSister,iDofChild,iDofMother,angleOfJoint,localAxisVectorOfJoint,positionRelative2ParentOfJoint);
+        Links.append(templlink);
+        //        qDebug()<<Links[index]->GetName();
+
+
+    }
+
+    return 1;
+}
+
+
+
