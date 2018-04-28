@@ -2,7 +2,7 @@
 
 Robot::Robot(QObject *parent) : QObject(parent)
 {
-    QString address="..//HLLP//RobotData//test.txt";
+    QString address="..//src//RobotData//test.txt";
     if (!FileExists(address))
     {
         qWarning()<<"Invalid Robot data Path:"<<address;
