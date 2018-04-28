@@ -16,10 +16,14 @@ class Robot : public QObject
     QList<QByteArray> GetContentOfRobot(QString name, QByteArray content);
     MatrixXd ExtractionOfMatrix(QByteArray data);
     MatrixXd Rodrigues(MatrixXd omega, double angle);
-    int CreateRobotLinks(QByteArray content);
+    QList<Link> CreateRobotLinks(QByteArray content);
+    void ForwardKinematic(int input,QByteArray content);
+
 public:
     explicit Robot(QObject *parent = nullptr);
-    QList<Link*> Links;
+    QList<Link> Links;
+    QList<Link> GetLinks();
+    QHash <QString,int> MappingName2ID;
 signals:
 
 public slots:

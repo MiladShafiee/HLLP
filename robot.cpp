@@ -12,7 +12,7 @@ Robot::Robot(QObject *parent) : QObject(parent)
     file.open(QFile::ReadWrite);
     QByteArray content = file.readAll();
     QList<QByteArray> values= GetContentOfRobot("AngularVelocityInWorldCoordinate",content);
-    int milad=CreateRobotLinks( content );
+    QList <Link> milad=CreateRobotLinks( content );
     //    foreach (QByteArray v, values) {
     //        qDebug()<<"input method="<<v;
     //        MatrixXd mat= ExtractionOfMatrix(v);
@@ -20,9 +20,15 @@ Robot::Robot(QObject *parent) : QObject(parent)
     //        MatrixXd gg=Rodrigues(mat,20);
     //        //qDebug()<<gg;
     //    }
+    ForwardKinematic(1,content);
 
     file.close();
 
+}
+
+QList<Link> Robot::GetLinks()
+{
+    return Links;
 }
 
 QList <QByteArray> Robot::GetContentOfRobot(QString name,QByteArray content)
@@ -93,9 +99,7 @@ MatrixXd Robot::Rodrigues(MatrixXd omega,double angle)
 
     if (!normOfOmega<std::numeric_limits<double>::epsilon()) {
 
-        MatrixXd rotation= MatrixXd::Identity(3,3);
-
-
+        rotation= MatrixXd::Identity(3,3);
     } else {
         MatrixXd NormalizedAxisRotation=omega/normOfOmega;
         double AmountOfRotation=normOfOmega*angle;
@@ -109,7 +113,7 @@ MatrixXd Robot::Rodrigues(MatrixXd omega,double angle)
 }
 
 
-int Robot::CreateRobotLinks(QByteArray content )
+QList <Link> Robot::CreateRobotLinks(QByteArray content )
 {
     QList<QByteArray> NameOfLinks= GetContentOfRobot("Name",content);
     QList<QByteArray> IDofLink= GetContentOfRobot("LinkID",content);
@@ -119,7 +123,6 @@ int Robot::CreateRobotLinks(QByteArray content )
     QList<QByteArray> AngleOfJoint= GetContentOfRobot("JointAngle",content);
     QList<QByteArray> LocalAxisVectorOfJoint= GetContentOfRobot("JointAxisVectorLocal",content);
     QList<QByteArray> PositionRelative2ParentOfJoint= GetContentOfRobot("JointPositionRelative2Parent",content);
-
 
 
 
@@ -133,23 +136,41 @@ int Robot::CreateRobotLinks(QByteArray content )
         int iDofMother=QString::fromLatin1(IDofMother[index].data()).toInt();
         MatrixXd localAxisVectorOfJoint= ExtractionOfMatrix(LocalAxisVectorOfJoint[index]);
         MatrixXd positionRelative2ParentOfJoint= ExtractionOfMatrix(PositionRelative2ParentOfJoint[index]);
-
-
-        if (index==0) {
-
-        }
-
-
-
-        Link *templlink=new Link(linkName,iDofLink,iDofSister,iDofChild,iDofMother,angleOfJoint,localAxisVectorOfJoint,positionRelative2ParentOfJoint);
+        Link templlink(linkName,iDofLink,iDofSister,iDofChild,iDofMother,angleOfJoint,localAxisVectorOfJoint,positionRelative2ParentOfJoint);
         Links.append(templlink);
-        //        qDebug()<<Links[index]->GetName();
-
-
+        MappingName2ID.insert(Links[index].GetName(),Links[index].GetID());
+        qDebug()<<Links[index].GetName();
     }
 
-    return 1;
+    return Links;
 }
 
 
+void Robot::ForwardKinematic(int input,QByteArray content)
+{
+    if (input==0) {
+        return;
+    }
 
+    if (input!=1) {
+        MatrixXd positionInWorldCoordinate=Links[Links[input-1].GetMotherID()-1].AttitudeInWorldCoordinate*Links[input-1].GetJointPositionRelative2Parent()+Links[Links[input-1].GetMotherID()-1].PositionInWorldCoordinate;
+        MatrixXd attitudeInWorldCoordinate=Links[Links[input-1].GetMotherID()-1].AttitudeInWorldCoordinate*Rodrigues(Links[input-1].GetJointAxisVectorLocal(),Links[input-1].JointAngle);
+        Links[input-1].AttitudeInWorldCoordinate=attitudeInWorldCoordinate;
+        Links[input-1].PositionInWorldCoordinate=positionInWorldCoordinate;
+
+    }  else {
+        QList <QByteArray> PositionInWorldCoordinate= GetContentOfRobot("PositionInWorldCoordinate",content);
+        MatrixXd positionInWorldCoordinate= ExtractionOfMatrix( PositionInWorldCoordinate[input-1]);
+        QList <QByteArray> AttitudeInWorldCoordinate= GetContentOfRobot("AttitudeInWorldCoordinate",content);
+        MatrixXd attitudeInWorldCoordinate= ExtractionOfMatrix( AttitudeInWorldCoordinate[input-1]);
+        Links[input-1].AttitudeInWorldCoordinate=attitudeInWorldCoordinate;
+        Links[input-1].PositionInWorldCoordinate=positionInWorldCoordinate;
+    }
+    // qDebug()<<input-1;
+    //qDebug()<<Links[input-1].GetID();
+    //    qDebug()<<Links[input-1].GetChildID();
+    //    qDebug()<<Links[input-1].GetSisterID();
+    ForwardKinematic( Links[input-1].GetChildID(), content);
+    ForwardKinematic( Links[input-1].GetSisterID(), content);
+
+}

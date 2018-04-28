@@ -1,5 +1,5 @@
 Name=Body
-ID=1 
+LinkID=1 
 SisterID=0
 ChildID=2
 MotherID=0
@@ -10,15 +10,15 @@ JointAcceleration=0
 JointAxisVectorLocal=[0;0;1]
 JointPositionRelative2Parent=[0;0;0]
 CenterOfMassLocal=[1;2;3]
-PositionInWorldCoordinate=[1;2;3]
+PositionInWorldCoordinate=[0;0;0]
 AngularVelocityInWorldCoordinate=[1;2;3]
 LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
-AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
+AttitudeInWorldCoordinate=[0,0,0;0,0,0;0,0,0]
 
 
 Name=RLEG_J0
-ID=2
+LinkID=2
 SisterID=8
 ChildID=3
 MotherID=1
@@ -36,7 +36,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 Name=RLEG_J1
-ID=3
+LinkID=3
 SisterID=0
 ChildID=4
 MotherID=2
@@ -54,7 +54,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 Name=RLEG_J2
-ID=4 
+LinkID=4 
 SisterID=0
 ChildID=5
 MotherID=3
@@ -73,7 +73,7 @@ AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
 Name=RLEG_J3
-ID=5
+LinkID=5
 SisterID=0
 ChildID=6
 MotherID=4
@@ -91,7 +91,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 Name=RLEG_J4
-ID=6
+LinkID=6
 SisterID=0
 ChildID=7
 MotherID=5
@@ -109,7 +109,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 Name=RLEG_J5
-ID=7 
+LinkID=7 
 SisterID=0
 ChildID=0
 MotherID=6
@@ -128,7 +128,7 @@ AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
 Name=LLEG_J0
-ID=8
+LinkID=8
 SisterID=0
 ChildID=9
 MotherID=1
@@ -146,7 +146,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 Name=LLEG_J1
-ID=9
+LinkID=9
 SisterID=0
 ChildID=10
 MotherID=8
@@ -164,7 +164,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 Name=LLEG_J2
-ID=10 
+LinkID=10 
 SisterID=0
 ChildID=11
 MotherID=9
@@ -183,7 +183,7 @@ AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
 Name=LLEG_J3
-ID=11
+LinkID=11
 SisterID=0
 ChildID=12
 MotherID=10
@@ -202,7 +202,7 @@ AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
 Name=LLEG_J4
-ID=12
+LinkID=12
 SisterID=0
 ChildID=13
 MotherID=11
@@ -221,7 +221,7 @@ AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
 Name=LLEG_J5
-ID=13
+LinkID=13
 SisterID=0
 ChildID=0
 MotherID=12
