@@ -1,19 +1,18 @@
-به نام خدا
-نحوه­ی نصب در Linux:
-در ابتدا آخرین نسخه­ی Choreonoid را از لینک http://choreonoid.org/ja/download.html دریافت می­کنیم. سپس آن را در جایی دلخواه از حالت فشرده در می­آوریم:
+In the name of God
+Choreonoid Installation in Ubuntu:
+First, got the lastest version of Choreonoid from the following link http://choreonoid.org/ja/download.html. Then unzip this file in an arbitrary folder,
 unzip choreonoid-1.6.0.zip
-
-حال به پوشه­ی choreonoid-1.6.0 رفته و با توجه به نسخه­ی Ubuntu دستور زیر را اجرا می­کنیم:
+Now, go to the "choreonoid-1.6.0" folder and based on the system's ubuntu version, execute the following command,
 misc/script/install-requisites-ubuntu-16.04.sh
-دستور بالا بسته­های مورد نیاز را نصب می­کند. حال اگر در اینجا اروری مبنی بر به روز بودن Qt داده شد باید دستور زیر را وارد کنیم:
+This command installs the necessary packages. If an error occured in this stage, maybe updating the system could solve the problem,
 sudo apt-get update
- حال باید دستور زیر را برای تولید makefile وارد کنیم:
+For making the makefile, following command should be executed,
 cmake .
-حال با دستور زیر می­توان تنظیمات cmake را ویرایش کرد:
+If an error occured like not founding the eigen,
+system restart could solve the problem.
+Now, the following command help us to make the configurations,
 ccmake .
-
-در این قسمت می­توان تنظیمات مختلف را روشن یا خاموش کرد. در سیستم مورد تست ما plugin مربوط به roki اشکال ایجاد کرد که آن را خاموش کردیم. حال دستور زیر را وارد می­کنیم:
+in this stage, various configurations could be set on or off. For example, we have turned off the roki plugin. After that, we can make,
 make
-حال فایل موجود در پوشه­ی bin به نام choreonoid را اجرا کنید. اگر صفحه­ی اصلی برنامه بدون هیچ مشکلی بالا آمد آنگاه دستور زیر را اجرا کنید:
+After making the files, we can check whether the system is working correctly or not. To do so, go to the bin directory and run the "choreonoid" file. If the simulation page, pops up correctly, you can do the last step by executing the following command,
 make install
-
