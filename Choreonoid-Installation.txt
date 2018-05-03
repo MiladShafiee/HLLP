@@ -12,7 +12,7 @@ If an error occured like not founding the eigen,
 system restart could solve the problem.
 Now, the following command help us to make the configurations,
 ccmake .
-in this stage, various configurations could be set on or off. For example, we have turned off the roki plugin or we have set the Qt5 turend on. After that, we can make,
+in this stage, various configurations could be set on or off. One important field is CMAKE_BUILD_TYPE. By default, this field is in Release mode, so if you want to use the could in debug mode, you should change this field to Debug. We have turned off the roki plugin or we have set the Qt5 turend on. After that, we can make,
 make
 After making the files, we can check whether the system is working correctly or not. To do so, go to the bin directory and run the "choreonoid" file. If the simulation page, pops up correctly, you can do the last step by executing the following command,
 make install
