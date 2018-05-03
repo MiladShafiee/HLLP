@@ -1,0 +1,10 @@
+For Choreonoid, we need eclipse where it could be downloaded here:
+https://www.eclipse.org/downloads/
+After unziping and executing the file, you may got the following errors:
+1) JRE or JDK needed: Solution: in software center search Java and install jdk.
+2) Your JDK version should be 1.8:
+solution:
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java8-installer
+
