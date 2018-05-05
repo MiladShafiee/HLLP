@@ -1,1 +1,8 @@
 In the name of God
+In this document, we talk about changing each joint values inside of "/sample/SimpleController/SR1Minimum.cpp".
+For changing each joint initial value, there is a method named "Initialize" in every class. In this method, 
+all the required
+parameters are read from the main wrl file and stored in a Bodyptr object (for example ioBody). This ioBody contains 
+the body joints as a vector of Linkptr. This Linkptr has a parameter named "q" in which all the joint values are stored in.
+This class also has a memeber named "u" which represents the control signal value.
+Following, a part of code is shown for turning the elbow joint.
