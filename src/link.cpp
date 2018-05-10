@@ -71,32 +71,32 @@ void Link::SetMomentumOfInertia(MatrixXd momentumOfInertia)
     _momentumOfInertia=momentumOfInertia;
 }
 
-MatrixXd Link::GetJointAxisVectorLocal()
+Vector3d Link::GetJointAxisVectorLocal()
 {
     return _jointAxisVectorLocal;
 }
 
-void Link::SetJointAxisVectorLocal(MatrixXd jointAxisVectorLocal)
+void Link::SetJointAxisVectorLocal(Vector3d jointAxisVectorLocal)
 {
     _jointAxisVectorLocal=jointAxisVectorLocal;
 }
 
-MatrixXd Link::GetJointPositionRelative2Parent()
+Vector3d Link::GetJointPositionRelative2Parent()
 {
     return _jointPositionRelative2Parent;
 }
 
-void Link::SetJointPositionRelative2Parent(MatrixXd jointPositionRelative2Parent)
+void Link::SetJointPositionRelative2Parent(Vector3d jointPositionRelative2Parent)
 {
     _jointPositionRelative2Parent=jointPositionRelative2Parent;
 }
 
-MatrixXd Link::GetCenterOfMassLocal()
+Vector3d Link::GetCenterOfMassLocal()
 {
     return _centerOfMassLocal;
 }
 
-void Link::SetCenterOfMassLocal(MatrixXd centerOfMassLocal)
+void Link::SetCenterOfMassLocal(Vector3d centerOfMassLocal)
 {
     _centerOfMassLocal=centerOfMassLocal;
 }

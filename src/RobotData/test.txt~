@@ -10,14 +10,14 @@ JointAcceleration=0
 JointAxisVectorLocal=[0;0;1]
 JointPositionRelative2Parent=[0;0;0]
 CenterOfMassLocal=[1;2;3]
-PositionInWorldCoordinate=[0;0;0]
+PositionInWorldCoordinate=[0;0;0.75]
 AngularVelocityInWorldCoordinate=[1;2;3]
 LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
-AttitudeInWorldCoordinate=[0,0,0;0,0,0;0,0,0]
+AttitudeInWorldCoordinate=[1,0,0;0,1,0;0,0,1]
 
 
-Name=RLEG_J0
+Name=RLEG_J1
 LinkID=2
 SisterID=8
 ChildID=3
@@ -35,7 +35,7 @@ LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
-Name=RLEG_J1
+Name=RLEG_J2
 LinkID=3
 SisterID=0
 ChildID=4
@@ -53,7 +53,7 @@ LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
-Name=RLEG_J2
+Name=RLEG_J3
 LinkID=4 
 SisterID=0
 ChildID=5
@@ -72,7 +72,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
-Name=RLEG_J3
+Name=RLEG_J4
 LinkID=5
 SisterID=0
 ChildID=6
@@ -90,7 +90,7 @@ LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
-Name=RLEG_J4
+Name=RLEG_J5
 LinkID=6
 SisterID=0
 ChildID=7
@@ -108,7 +108,7 @@ LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
-Name=RLEG_J5
+Name=RLEG_J6
 LinkID=7 
 SisterID=0
 ChildID=0
@@ -127,7 +127,7 @@ MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
-Name=LLEG_J0
+Name=LLEG_J1
 LinkID=8
 SisterID=0
 ChildID=9
@@ -136,7 +136,7 @@ Mass=5
 JointAngle=0
 JointVelocity=0
 JointAcceleration=0
-JointAxisVectorLocal=[1;2;3]
+JointAxisVectorLocal=[0;0;1]
 JointPositionRelative2Parent=[0;0.10;0]
 CenterOfMassLocal=[1;2;3]
 PositionInWorldCoordinate=[1;2;3]
@@ -145,7 +145,7 @@ LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
-Name=LLEG_J1
+Name=LLEG_J2
 LinkID=9
 SisterID=0
 ChildID=10
@@ -154,7 +154,7 @@ Mass=1
 JointAngle=0
 JointVelocity=0
 JointAcceleration=0
-JointAxisVectorLocal=[1;2;3]
+JointAxisVectorLocal=[1;0;0]
 JointPositionRelative2Parent=[0;0;0]
 CenterOfMassLocal=[1;2;3]
 PositionInWorldCoordinate=[1;2;3]
@@ -163,7 +163,7 @@ LinearVelocityInWorldCoordinate=[1;2;3]
 MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
 AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
-Name=LLEG_J2
+Name=LLEG_J3
 LinkID=10 
 SisterID=0
 ChildID=11
@@ -172,27 +172,8 @@ Mass=5
 JointAngle=0
 JointVelocity=0
 JointAcceleration=0
-JointAxisVectorLocal=[1;2;3]
+JointAxisVectorLocal=[0;1;0]
 JointPositionRelative2Parent=[0;0;0]
-CenterOfMassLocal=[1;2;3]
-PositionInWorldCoordinate=[1;2;3]
-AngularVelocityInWorldCoordinate=[1;2;3]
-LinearVelocityInWorldCoordinate=[1;2;3]
-MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
-AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
-
-
-Name=LLEG_J3
-LinkID=11
-SisterID=0
-ChildID=12
-MotherID=10
-Mass=1
-JointAngle=0
-JointVelocity=0
-JointAcceleration=0
-JointAxisVectorLocal=[1;2;3]
-JointPositionRelative2Parent=[0;0;-0.35]
 CenterOfMassLocal=[1;2;3]
 PositionInWorldCoordinate=[1;2;3]
 AngularVelocityInWorldCoordinate=[1;2;3]
@@ -202,15 +183,15 @@ AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
 Name=LLEG_J4
-LinkID=12
+LinkID=11
 SisterID=0
-ChildID=13
-MotherID=11
-Mass=6
+ChildID=12
+MotherID=10
+Mass=1
 JointAngle=0
 JointVelocity=0
 JointAcceleration=0
-JointAxisVectorLocal=[1;2;3]
+JointAxisVectorLocal=[0;1;0]
 JointPositionRelative2Parent=[0;0;-0.35]
 CenterOfMassLocal=[1;2;3]
 PositionInWorldCoordinate=[1;2;3]
@@ -221,6 +202,25 @@ AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
 
 
 Name=LLEG_J5
+LinkID=12
+SisterID=0
+ChildID=13
+MotherID=11
+Mass=6
+JointAngle=0
+JointVelocity=0
+JointAcceleration=0
+JointAxisVectorLocal=[0;1;0]
+JointPositionRelative2Parent=[0;0;-0.35]
+CenterOfMassLocal=[1;2;3]
+PositionInWorldCoordinate=[1;2;3]
+AngularVelocityInWorldCoordinate=[1;2;3]
+LinearVelocityInWorldCoordinate=[1;2;3]
+MomentumOfInertia=[10,51,0;1,2,3;4,5,6]
+AttitudeInWorldCoordinate=[10,51,0;1,2,3;4,5,6]
+
+
+Name=LLEG_J6
 LinkID=13
 SisterID=0
 ChildID=0
@@ -229,7 +229,7 @@ Mass=2
 JointAngle=0
 JointVelocity=0
 JointAcceleration=0
-JointAxisVectorLocal=[1;2;3]
+JointAxisVectorLocal=[1;0;0]
 JointPositionRelative2Parent=[0;0;0]
 CenterOfMassLocal=[1;2;3]
 PositionInWorldCoordinate=[1;2;3]

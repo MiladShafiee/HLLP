@@ -28,12 +28,16 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     link.cpp \
-    robot.cpp
+    robot.cpp \
+    taskspace.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
         mainwindow.h \
     link.h \
-    robot.h
+    robot.h \
+    taskspace.h \
+    qcustomplot.h
 
 FORMS += \
         mainwindow.ui

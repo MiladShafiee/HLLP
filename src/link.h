@@ -24,22 +24,22 @@ public:
     void SetMass(double Mass);
     MatrixXd GetMomentumOfInertia();
     void SetMomentumOfInertia(MatrixXd momentumOfInertia);
-    MatrixXd GetJointAxisVectorLocal();
-    void SetJointAxisVectorLocal(MatrixXd jointAxisVectorLocal);
-    MatrixXd GetJointPositionRelative2Parent();
-    void SetJointPositionRelative2Parent(MatrixXd jointPositionRelative2Parent);
-    MatrixXd GetCenterOfMassLocal();
-    void SetCenterOfMassLocal(MatrixXd centerOfMassLocal);
+    Vector3d GetJointAxisVectorLocal();
+    void SetJointAxisVectorLocal(Vector3d jointAxisVectorLocal);
+    Vector3d GetJointPositionRelative2Parent();
+    void SetJointPositionRelative2Parent(Vector3d jointPositionRelative2Parent);
+    Vector3d GetCenterOfMassLocal();
+    void SetCenterOfMassLocal(Vector3d centerOfMassLocal);
 
     Link(QString name, int IDofLink, int IDofSyster, int IDofChild, int IDofMother, double AngleOfJoint, MatrixXd LocalAxisVectorOfJoint, MatrixXd PositionRelative2ParentOfJoint);
 
     double JointAngle;
     double JointVelocity;
     double JointAcceleration;
-    MatrixXd PositionInWorldCoordinate;
+    Vector3d PositionInWorldCoordinate;
     MatrixXd AttitudeInWorldCoordinate;
-    MatrixXd LinearVelocityInWorldCoordinate;
-    MatrixXd AngularVelocityInWorldCoordinate;
+    Vector3d LinearVelocityInWorldCoordinate;
+    Vector3d AngularVelocityInWorldCoordinate;
 
 
 signals:
@@ -55,9 +55,9 @@ private:
     int _motherID;
     double _mass;
     MatrixXd _momentumOfInertia;
-    MatrixXd _jointAxisVectorLocal;
-    MatrixXd _jointPositionRelative2Parent;
-    MatrixXd _centerOfMassLocal;
+    Vector3d _jointAxisVectorLocal;
+    Vector3d _jointPositionRelative2Parent;
+    Vector3d _centerOfMassLocal;
 };
 
 #endif // LINK_H
