@@ -47,22 +47,7 @@ void TaskSpace::SetDesiredMAxFootHeight(double desiredMaxFootHeight){
 
 TaskSpace::TaskSpace()
 {
-    //    _RightStart=false ;
-    //    _LeftStart=true;
-    //    _Xoffset=0.05;
-    //    _SpatialStepSize=0.01;
-    //    _nSteps=7;
-    //    //_stepLength=stepLength;
-    //    _ankleLength=0.05;
-    //    _tempTigh=Links[MapingName2ID.value("RLeg_KneeP_J4")].GetJointPositionRelative2Parent();
-    //    _thighLength=_tempTigh(2);
-    //    _tempShank=Links[MapingName2ID.value("RLeg_AnkleP_J5")].GetJointPositionRelative2Parent();
-    //    _shankLength=_tempShank(2);
-    //    //_XMiddleOfStep=_stepLength/2;
-    //    _legLength=_shankLength+_thighLength;
 
-    //    MatrixXd _xHip;
-    //    MatrixXd _zHip;
     _XDesiredVelocity=1;
     _YDesiredVelocity=0;
     SetStepTimingGain(1);
@@ -95,7 +80,7 @@ TaskSpace::TaskSpace()
     _omega=sqrt(_gravity/_PelvisHeight);
     GetDesiredParameter();
 
-_desiredMAxFootHeight=0.2;
+    _desiredMAxFootHeight=0.2;
 
     _DCM.resize(1,2);
     _DCM.fill(0);
@@ -336,11 +321,11 @@ MatrixXd TaskSpace::QPController(int StepNumber,MatrixXd CoPDisplacementSS){
 
     optCosts = solve_quadprog(HTemp2, g, -1*CE,ce0 ,-1*CIT , ci0, sol);
     if(optCosts==std::numeric_limits<double>::infinity()){
-              qDebug("Quadratic Programming for DCM Planning failed!");
-   }
+        qDebug("Quadratic Programming for DCM Planning failed!");
+    }
     MatrixXd ux = sol;
     nanoSec = timer.nsecsElapsed();
-   // qDebug()<< nanoSec*pow(10,-6);
+    // qDebug()<< nanoSec*pow(10,-6);
     return ux;
 
     //                //min  0.5 * x H x + g x
@@ -439,7 +424,7 @@ MatrixXd TaskSpace::RightFoot(){
     MatrixXd xposition;
     MatrixXd xvelocity;
     MatrixXd xacceleration;
-double t0=0;
+    double t0=0;
     MatrixXd yposition;
     MatrixXd yvelocity;
     MatrixXd yacceleration;
@@ -520,63 +505,63 @@ double t0=0;
     MatrixXd Aeq;
     MatrixXd beq;
 
-if(time!=_timeStep){
-     Aeq.resize(9,10);
-     beq.resize(9,1);
+    if(time!=_timeStep){
+        Aeq.resize(9,10);
+        beq.resize(9,1);
 
-}
+    }
 
-else{
+    else{
 
-     Aeq.resize(6,10);
-     beq.resize(6,1);
+        Aeq.resize(6,10);
+        beq.resize(6,1);
 
 
-}
+    }
 
     H<<2*pow((Time(0,1)/2-t0),18),2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),
-       2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),
-       2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),
-       2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),
-       2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),
-       2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),
-       2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),
-       2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),
-       2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),
-       2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),2*pow((Time(0,1)/2-t0),0);
+            2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),
+            2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),
+            2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),
+            2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),
+            2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),
+            2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),
+            2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),
+            2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),
+            2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),2*pow((Time(0,1)/2-t0),0);
 
     F<<-2*pow((Time(0,1)/2-t0),9)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),8)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),7)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),6)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),5)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),4)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),3)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),2)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),1)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),0)*_desiredMAxFootHeight;
 
 
     Aiq<<pow((time-t0),9),pow((time-t0),8),pow((time-t0),7),pow((time-t0),6),pow((time-t0),5),pow((time-t0),4),pow((time-t0),3),pow((time-t0),2),pow((time-t0),1),pow((time-t0),0),
-         pow(-1*(time-t0),9),-1*pow((time-t0),8),-1*pow((time-t0),7),-1*pow((time-t0),6),-1*pow((time-t0),5),-1*pow((time-t0),4),-1*pow((time-t0),3),-1*pow((time-t0),2),-1*pow((time-t0),1),-1*pow((time-t0),0);
-    biq<<_desiredMAxFootHeight+0.01,0;
-if(time!=_timeStep){
-    Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
-            pow((time-_timeStep-t0),9),pow((time-_timeStep-t0),8),pow((time-_timeStep-t0),7),pow((time-_timeStep-t0),6),pow((time-_timeStep-t0),5),pow((time-_timeStep-t0),4),pow((time-_timeStep-t0),3),pow((time-_timeStep-t0),2),pow((time-_timeStep-t0),1),1,
-            pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
-            9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
-            9*pow((time-_timeStep-t0),8),8*pow((time-_timeStep-t0),7),7*pow((time-_timeStep-t0),6),6*pow((time-_timeStep-t0),5),5*pow((time-_timeStep-t0),4),4*pow((time-_timeStep-t0),3),3*pow((time-_timeStep-t0),2),2*pow((time-_timeStep-t0),1),1,0,
-            9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
-            9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
-            9*8*pow((time-_timeStep-t0),7),8*7*pow((time-_timeStep-t0),6),7*6*pow((time-_timeStep-t0),5),6*5*pow((time-_timeStep-t0),4),5*4*pow((time-_timeStep-t0),3),4*3*pow((time-_timeStep-t0),2),3*2*pow((time-_timeStep-t0),1),2,0,0,
-            9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
+            pow(-1*(time-t0),9),-1*pow((time-t0),8),-1*pow((time-t0),7),-1*pow((time-t0),6),-1*pow((time-t0),5),-1*pow((time-t0),4),-1*pow((time-t0),3),-1*pow((time-t0),2),-1*pow((time-t0),1),-1*pow((time-t0),0);
+    biq<<_desiredMAxFootHeight+0.05,0;
+    if(time!=_timeStep){
+        Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
+                pow((time-_timeStep-t0),9),pow((time-_timeStep-t0),8),pow((time-_timeStep-t0),7),pow((time-_timeStep-t0),6),pow((time-_timeStep-t0),5),pow((time-_timeStep-t0),4),pow((time-_timeStep-t0),3),pow((time-_timeStep-t0),2),pow((time-_timeStep-t0),1),1,
+                pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
+                9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
+                9*pow((time-_timeStep-t0),8),8*pow((time-_timeStep-t0),7),7*pow((time-_timeStep-t0),6),6*pow((time-_timeStep-t0),5),5*pow((time-_timeStep-t0),4),4*pow((time-_timeStep-t0),3),3*pow((time-_timeStep-t0),2),2*pow((time-_timeStep-t0),1),1,0,
+                9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
+                9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
+                9*8*pow((time-_timeStep-t0),7),8*7*pow((time-_timeStep-t0),6),7*6*pow((time-_timeStep-t0),5),6*5*pow((time-_timeStep-t0),4),5*4*pow((time-_timeStep-t0),3),4*3*pow((time-_timeStep-t0),2),3*2*pow((time-_timeStep-t0),1),2,0,0,
+                9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
 
-     beq<<0,RightFootZTrajectory[RightFootZTrajectory.size()-1],0,0,RightFootZVelocity[RightFootZVelocity.size()-1],0,0,RightFootZacceleration[RightFootZacceleration.size()-1],0;
-   }
-else{
-    Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
-            pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
-            9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
-            9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
-            9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
-            9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
+        beq<<0,RightFootZTrajectory[RightFootZTrajectory.size()-1],0,0,RightFootZVelocity[RightFootZVelocity.size()-1],0,0,RightFootZacceleration[RightFootZacceleration.size()-1],0;
+    }
+    else{
+        Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
+                pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
+                9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
+                9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
+                9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
+                9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
 
 
 
-    beq<<0,0,0,0,0,0;
+        beq<<0,0,0,0,0,0;
 
-}
+    }
 
     VectorXd sol(H.rows());
     MatrixXd HTemp2 = H;
@@ -587,36 +572,24 @@ else{
 
     MatrixXd CE=-1*Aeq.transpose();
     VectorXd ce0=beq;
-   // CE<<
-   // ce0<<beq(0,0),beq(0,1),beq(0,2),beq(0,3),beq(0,4),beq(0,5),beq(0,6),beq(0,7),beq(0,8);
+
 
     VectorXd g(Map<VectorXd>(F.data(),F.cols()*F.rows()));
 
     double optCost;
 
-
-
     optCost = solve_quadprog(HTemp2, g, CE,ce0 ,CIT , ci0, sol);
     if(optCost==std::numeric_limits<double>::infinity()){
-              qDebug("Quadratic Programming for Foot Z Trajectory failed!");
-   }
+        qDebug("Quadratic Programming for Foot Z Trajectory failed!");
+    }
 
     MatrixXd CoefZ = sol;
     MatrixXd outputz= GetAccVelPos(CoefZ.transpose(),time,0,9);
-    MatrixXd Milad=CoefZ.transpose();
-    MatrixXd Ali=Milad.rowwise().reverse();
-    MatrixXd outputz2= GetAccVelPos(CoefZ.transpose(),Time(0,1),0,9);
 
-
-    MatrixXd milll(1,10);
-    milll<<pow((time-t0),9),pow((time-t0),8),pow((time-t0),7),pow((time-t0),6),pow((time-t0),5),pow((time-t0),4),pow((time-t0),3),pow((time-t0),2),pow((time-t0),1),1;
-    MatrixXd jack=milll*CoefZ;
     z=outputz(0,0);
     dz=outputz(0,1);
     ddz=outputz(0,2);
-if(time==0.18){
-    qDebug()<<"1";
-}
+
 
     MatrixXd FootTrajectories(1,9);
     FootTrajectories<<x,dx,ddx,y,dy,ddy,z,dz,ddz;
