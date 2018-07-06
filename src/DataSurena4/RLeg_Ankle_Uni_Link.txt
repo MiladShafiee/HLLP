@@ -1,0 +1,37 @@
+Mass properties of Universial_ankle_R
+     Configuration: Default
+     Coordinate system: Coordinate System1
+
+Mass (user-overridden) = 1215.00 grams
+
+Volume = 268209.96 cubic millimeters
+
+Surface area = 217122.05  square millimeters
+
+Center of mass: ( millimeters )
+	X = -11.12
+	Y = 0.20
+	Z = 0.67
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = ( 1.00, -0.01, -0.06)   	Px = 757744.12
+	 Iy = ( 0.01,  1.00,  0.01)   	Py = 1616585.46
+	 Iz = ( 0.06, -0.01,  1.00)   	Pz = 1749320.31
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 761158.10	Lxy = -7230.27	Lxz = -57548.83
+	Lyx = -7230.27	Lyy = 1616536.46	Lyz = 1756.75
+	Lzx = -57548.83	Lzy = 1756.75	Lzz = 1745955.33
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 761744.40	Ixy = -9884.70	Ixz = -66547.03
+	Iyx = -9884.70	Iyy = 1767193.18	Iyz = 1915.86
+	Izx = -66547.03	Izy = 1915.86	Izz = 1896119.62
+
+ 761158.10  -7230.27	 -57548.83 -7230.27	1616536.46	 1756.75
+	 -57548.83	 1756.75	 1745955.33
+
+0.00076115810 -0.00000723027 -0.00005754883  -0.00000723027 0.00161653646 0.00000175675 -0.00005754883 0.00000175675 0.00174595533

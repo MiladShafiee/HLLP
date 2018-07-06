@@ -1,0 +1,32 @@
+Mass properties of Shank_L
+     Configuration: Default
+     Coordinate system: Coordinate System1
+
+Mass (user-overridden) = 4070.00 grams
+
+Volume = 937518.63 cubic millimeters
+
+Surface area = 614461.93  square millimeters
+
+Center of mass: ( millimeters )
+	X = -17.17
+	Y = 0.75
+	Z = -175.85
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = ( 0.06,  0.01,  1.00)   	Px = 12558849.67
+	 Iy = ( 1.00,  0.00, -0.06)   	Py = 41776789.82
+	 Iz = ( 0.00,  1.00, -0.01)   	Pz = 43536497.41
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 41681969.34	Lxy = 2659.47	Lxz = 1662010.12
+	Lyx = 2659.47	Lyy = 43535464.10	Lyz = 176335.53
+	Lzx = 1662010.12	Lzy = 176335.53	Lzz = 12654703.46
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 167543760.16	Ixy = -50062.73	Ixz = 13950040.36
+	Iyx = -50062.73	Iyy = 170594654.51	Iyz = -363668.69
+	Izx = 13950040.36	Izy = -363668.69	Izz = 13856736.87

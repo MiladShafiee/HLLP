@@ -1,0 +1,32 @@
+Mass properties of Pelvis1
+     Configuration: Default
+     Coordinate system: Coordinate System3
+
+Mass (user-overridden) = 2887.00 grams
+
+Volume = 811172.81 cubic millimeters
+
+Surface area = 538571.84  square millimeters
+
+Center of mass: ( millimeters )
+	X = -62.13
+	Y = 0.06
+	Z = 27.01
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = ( 0.00,  1.00,  0.00)   	Px = 8174363.44
+	 Iy = (-0.99,  0.00,  0.10)   	Py = 15656705.60
+	 Iz = ( 0.10,  0.00,  0.99)   	Pz = 20194125.60
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 15701998.02	Lxy = 218.39	Lxz = -451064.68
+	Lyx = 218.39	Lyy = 8174363.51	Lyz = 848.84
+	Lzx = -451064.68	Lzy = 848.84	Lzz = 20148833.11
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 17808181.61	Ixy = -10647.54	Ixz = -5295443.06
+	Iyx = -10647.54	Iyy = 21423021.96	Iyz = 5572.98
+	Izx = -5295443.06	Izy = 5572.98	Izz = 31291329.18

@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 #include "robot.h"
 #include <QMainWindow>
+#include <taskspace.h>
+#include <qcustomplot.h>
 
 namespace Ui {
 class MainWindow;
@@ -16,8 +18,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void Plot(TaskSpace Pelvis);
 private:
     Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H
+
+
+
+

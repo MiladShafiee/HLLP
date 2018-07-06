@@ -1,6 +1,7 @@
 ﻿#include "robot.h"
-//note taht ID is one unit more than Links index
-Robot::Robot(QObject *parent) : QObject(parent)
+//note that ID is one unit more than Links index
+
+Robot::Robot( MatrixXd PelvisTrajectory, MatrixXd AnkleTrajectory)
 {
     QString address="..//src//RobotData//test.txt";
     if (!FileExists(address))
@@ -9,48 +10,36 @@ Robot::Robot(QObject *parent) : QObject(parent)
         return;
     }
     QFile file(address);
-    TaskSpace StraightLEgWalk;
+
     file.open(QFile::ReadWrite);
     content = file.readAll();
-
 
     Links= CreateRobotLinks( content );
     MatrixXi leftRoute= GetLeftLegRoute();
     MatrixXi rightRoute= GetRightLegRoute();
-
+    MatrixXi _LegRoute= FindRoutfromRoot2Destination("LArm_WristP_J7");
     MatrixXd rightLegAngle(1,6);
     rightLegAngle<<0 ,0 ,-25 ,50, -25, 0;
     VectorXd x;
     SetJointAngle(rightLegAngle*(M_PI/180),rightRoute);
-//    Link Rfoot=Links[MapingName2ID.value("RLEG_J6")-1];
-//    Rfoot.PositionInWorldCoordinate<<1,2,3;
-//    Rfoot.AttitudeInWorldCoordinate<<8,6,5,3,1,7,6,5,4;
-   /* MatrixXd temp(6,1);
-            temp<<1,2,3,4,5,6;
-    MoveJoints(rightRoute,temp);
-   MatrixXd milad3= CalcJacobian(rightRoute);
-  MatrixXd milad2=  CalcTaskSpaceError(Rfoot,"RLEG_J6");
-    cout<<milad2*/;
+
     x.setLinSpaced(81,0,0.4);
-
-
+    qDebug()<<Links.size();
+    _joinAngles.conservativeResize(Links.size(),NoChange);
     MatrixXd q_m;
     MatrixXd x_m;
 
     int Nstep = x.rows();
     q_m = MatrixXd::Zero(Nstep,6);
     x_m =  MatrixXd::Zero(Nstep,1);
-    Link Rfoot=Links[MapingName2ID.value("RLEG_J6")-1];
+    Link Rfoot=Links[MapingName2ID.value("RLeg_AnkleR_J6")-1];
     double errorm;
     for (int var = 0; var < Nstep; var++) {
         Rfoot.PositionInWorldCoordinate(0)=x(var);
-        errorm=IKLevenbergMarquardt(Rfoot,"RLEG_J6");
-qDebug()<<errorm;
+        errorm=IKLevenbergMarquardt(Rfoot,"RLeg_AnkleR_J6");
+        //qDebug()<<errorm;
     }
-
-
     file.close();
-
 }
 
 QList<Link> Robot::GetLinks()
@@ -65,7 +54,7 @@ MatrixXi Robot::Getroute()
 
 MatrixXi Robot::GetLeftLegRoute()
 {
-    MatrixXi _leftLegRoute= FindRoutfromRoot2Destination("LLEG_J6");
+    MatrixXi _leftLegRoute= FindRoutfromRoot2Destination("LLeg_AnkleR_J6");
     return _leftLegRoute;
 }
 
@@ -76,7 +65,7 @@ void Robot::SetLeftLegRoute(MatrixXd leftLegRoute)
 
 MatrixXi Robot::GetRightLegRoute()
 {
-    MatrixXi _rightLegRoute= FindRoutfromRoot2Destination("RLEG_J6");
+    MatrixXi _rightLegRoute= FindRoutfromRoot2Destination("RLeg_AnkleR_J6");
     return _rightLegRoute;
 }
 
@@ -96,7 +85,6 @@ QList <QByteArray> Robot::GetContentOfRobot(QString name,QByteArray content)
         {
             break;
         }
-
         QByteArray temp=content.mid(index,content.length());
         QByteArray line=temp.split('\n')[0];
         QList <QByteArray> values=line.split('=');
@@ -132,19 +120,14 @@ MatrixXd Robot::ExtractionOfMatrix(QByteArray data)
     insideBrackets= insideBrackets.split('[')[1];
     QList <QByteArray> rows=insideBrackets.split(';');
     QList <QByteArray> columns=rows[0].split(',');
-
     mat.resize(rows.length(),columns.length());
-
     //////initial mat values
     for (int i = 0; i < rows.length(); i++) {
         QList <QByteArray> currentCols=rows[i].split(',');
         for (int j = 0; j < currentCols.length(); j++) {
             mat(i,j) = currentCols[j].toDouble();
-
         }
     }
-
-
     return mat;
 }
 
@@ -153,7 +136,7 @@ MatrixXd Robot::ExtractionOfMatrix(QByteArray data)
 QList <Link> Robot::CreateRobotLinks(QByteArray content )
 {
     QList<QByteArray> NameOfLinks= GetContentOfRobot("Name",content);
-    QList<QByteArray> IDofLink= GetContentOfRobot("LinkID",content);
+    QList<QByteArray> IDofLink= GetContentOfRobot("JointID",content);
     QList<QByteArray> IDofSister= GetContentOfRobot("SisterID",content);
     QList<QByteArray> IDofChild= GetContentOfRobot("ChildID",content);
     QList<QByteArray> IDofMother= GetContentOfRobot("MotherID",content);
@@ -261,9 +244,9 @@ void Robot::MoveJoints(MatrixXi route, MatrixXd deltaJointAngle)
 
         index=route(var)-1;
         Links[index].JointAngle=Links[index].JointAngle+deltaJointAngle(index-1);
-
+        //_joinAngles.block(0,);
     }
-   //  qDebug()<<"milad";
+    //  qDebug()<<"milad";
 }
 
 
@@ -350,8 +333,8 @@ MatrixXd Robot::CalcJacobian(MatrixXi route )
 {
     MatrixXd Jacobian;
     Vector3d target;
-        Jacobian.fill(0);
-        target.fill(0);
+    Jacobian.fill(0);
+    target.fill(0);
     Vector3d JointAxisInWorldFrame;
     JointAxisInWorldFrame.fill(0);
     int JacobianColumnSize;
@@ -407,6 +390,7 @@ double Robot::IKLevenbergMarquardt(Link Target,QString current)
         Jh=J.transpose()*we*J+wn*(Ek+0.02);
         gerr=J.transpose()*we*error;
         dq=Jh.lu().solve(gerr);
+        _joinAngles.conservativeResize(NoChange,_joinAngles.rows()+1);
         MoveJoints(route,dq);
         ForwardKinematic(1);
         error=CalcTaskSpaceError(Target,current);

@@ -7,7 +7,7 @@
 QT       += core gui
 QMAKE_CXXFLAGS += -std=c++0x
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = SURENA4Locomotion
 TEMPLATE = app
@@ -29,15 +29,19 @@ SOURCES += \
         mainwindow.cpp \
     link.cpp \
     robot.cpp \
+    qcustomplot.cpp \
+    sqdtaskspace.cpp \
     taskspace.cpp \
-    qcustomplot.cpp
+    minimumjerkinterpolation.cpp
 
 HEADERS += \
         mainwindow.h \
     link.h \
     robot.h \
+    qcustomplot.h \
+    sqdtaskspace.h \
     taskspace.h \
-    qcustomplot.h
+    minimumjerkinterpolation.h
 
 FORMS += \
         mainwindow.ui

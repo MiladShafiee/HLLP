@@ -1,0 +1,32 @@
+Mass properties of Hip_R
+     Configuration: Default
+     Coordinate system: Coordinate System1
+
+Mass (user-overridden) = 2537.00 grams
+
+Volume = 754731.86 cubic millimeters
+
+Surface area = 427039.84  square millimeters
+
+Center of mass: ( millimeters )
+	X = -6.37
+	Y = 5.99
+	Z = 27.16
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = ( 0.03,  0.03,  1.00)   	Px = 5689527.37
+	 Iy = ( 1.00, -0.05, -0.03)   	Py = 18474839.10
+	 Iz = ( 0.05,  1.00, -0.03)   	Pz = 20599230.45
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 18468605.40	Lxy = -99925.07	Lxz = 397366.32
+	Lyx = -99925.07	Lyy = 20579328.49	Lyz = 456057.14
+	Lzx = 397366.32	Lzy = 456057.14	Lzz = 5715663.03
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 20431085.73	Ixy = -196716.16	Ixz = -41825.48
+	Iyx = -196716.16	Iyy = 22553969.85	Iyz = 868524.25
+	Izx = -41825.48	Izy = 868524.25	Izz = 5909626.82

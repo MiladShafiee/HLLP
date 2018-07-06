@@ -1,0 +1,37 @@
+Mass properties of Thigh_R
+     Configuration: Default
+     Coordinate system: Coordinate System1
+
+Mass (user-overridden) = 4405.00 grams
+
+Volume = 1111778.83 cubic millimeters
+
+Surface area = 783788.39  square millimeters
+
+Center of mass: ( millimeters )
+	X = 0.44
+	Y = 2.94
+	Z = -294.32
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = ( 0.01,  0.00,  1.00)   	Px = 9921321.81
+	 Iy = ( 0.00, -1.00,  0.00)   	Py = 60743046.29
+	 Iz = ( 1.00,  0.00, -0.01)   	Pz = 63287003.19
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 63284881.50	Lxy = 5614.72	Lxz = 335693.00
+	Lyx = 5614.72	Lyy = 60742886.98	Lyz = 92714.30
+	Lzx = 335693.00	Lzy = 92714.30	Lzz = 9923602.82
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 444906853.50	Ixy = 11324.05	Ixz = -235402.15
+	Iyx = 11324.05	Iyy = 442327576.97	Iyz = -3722042.01
+	Izx = -235402.15	Izy = -3722042.01	Izz = 9962594.29
+
+ 0.06328488150	 0.00000561472	 0.00033569300
+	0.00000561472	 60742886.98	 0.000092714.30
+	 0.00033569300	 0.00009271430	 0.00992360282
+

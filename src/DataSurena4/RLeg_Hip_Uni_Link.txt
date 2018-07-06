@@ -1,0 +1,36 @@
+Mass properties of Universial_hip_R
+     Configuration: Default
+     Coordinate system: Coordinate System1
+
+* Includes the mass properties of one or more hidden components/bodies.
+
+Mass (user-overridden) = 1100.00 grams
+
+Volume = 239631.33 cubic millimeters
+
+Surface area = 205851.12  square millimeters
+
+Center of mass: ( millimeters )
+	X = 0.10
+	Y = -1.13
+	Z = 0.05
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = ( 0.00,  1.00,  0.00)   	Px = 730036.55
+	 Iy = (-1.00,  0.00,  0.09)   	Py = 1608955.62
+	 Iz = ( 0.09,  0.00,  1.00)   	Pz = 1613761.88
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 1608995.04	Lxy = 1076.38	Lxz = -439.35
+	Lyx = 1076.38	Lyy = 730039.01	Lyz = 1002.72
+	Lzx = -439.35	Lzy = 1002.72	Lzz = 1613720.01
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 1610399.35	Ixy = 956.87	Ixz = -434.42
+	Iyx = 956.87	Iyy = 730051.58	Iyz = 944.89
+	Izx = -434.42	Izy = 944.89	Izz = 1615132.13
+
+0.00160899504 0.00000107638 -0.00000043935 0.00000107638 0.00073003901 0.00000100272 -0.00000043935 0.00000100272 0.00161372001

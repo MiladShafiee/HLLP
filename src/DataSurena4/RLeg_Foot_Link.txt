@@ -1,0 +1,37 @@
+Mass properties of Foot_R
+     Configuration: Default
+     Coordinate system: Coordinate System1
+
+Mass (user-overridden) = 1335.00 grams
+
+Volume = 568765.98 cubic millimeters
+
+Surface area = 165945.11  square millimeters
+
+Center of mass: ( millimeters )
+	X = 12.72
+	Y = 1.97
+	Z = -83.98
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = ( 0.99,  0.01, -0.12)   	Px = 2399151.63
+	 Iy = (-0.09,  0.69, -0.72)   	Py = 4198316.92
+	 Iz = ( 0.07,  0.72,  0.69)   	Pz = 4268470.02
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 2423998.64	Lxy = 15136.40	Lxz = -211081.17
+	Lyx = 15136.40	Lyy = 4234579.61	Lyz = -37056.16
+	Lzx = -211081.17	Lzy = -37056.16	Lzz = 4207360.33
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 11844802.60	Ixy = 48588.77	Ixz = -1637337.56
+	Iyx = 48588.77	Iyy = 13866249.76	Iyz = -257896.51
+	Izx = -1637337.56	Izy = -257896.51	Izz = 4428585.99
+
+
+0.00242399864 0.00001513640 -0.00021108117 0.00001513640 0.00423457961 -0.00003705616 -0.00021108117 -0.00003705616 0.00420736033
+
+0.012.72 0.00197 -0.08398

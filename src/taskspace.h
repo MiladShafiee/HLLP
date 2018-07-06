@@ -1,40 +1,161 @@
 #ifndef TASKSPACE_H
 #define TASKSPACE_H
+#include "Eigen/Dense"
 #include <qdebug.h>
 #include <qmath.h>
-#include "Eigen/Dense"
+#include <Eigen/Geometry>
+#include <iostream>
+#include <cstdlib>
+#include <link.h>
+//#include "Eigen/QuadProg.h"
+//#include "Eigen/testQPsolvers.hpp"
+#include "Eigen/eiquadprog.h"
+#include "Eigen/Core"
+#include "Eigen/Cholesky"
+#include "Eigen/LU"
+#include<math.h>
+#include <unsupported/Eigen/Polynomials>
+#include<qtimer.h>>
+#include <QElapsedTimer>
+#include "minimumjerkinterpolation.h"
+using namespace std;
 using namespace Eigen;
+
 
 class TaskSpace
 {
-    Vector3d _bodyPosition;
-    Matrix3d _bodyAttitude;
+    MatrixXd _previousCoef;
+    bool _RightStart;
+    bool _LeftStart;
+    double _Xoffset;
+    double _SpatialStepSize;
+    double _gravity;
+    double _PelvisHeight;
+    double _XDesiredVelocity;
+    double _YDesiredVelocity;
+    double _omega;
+    double _timeStep;
+    double _stepDuration;
+    int _nSteps;
+    double _desiredMAxFootHeight;
+    double _desiredStepLength;
+    double _desiredStepWidth;
+    double _MaxStepLength;
+    double _MaxStepWidth;
+    double _MaxStepDuration;
+    double _MinStepLength;
+    double _MinStepWidth;
+    double _MinStepDuration;
+    double _desiredStepDuration;
+    double _ankleLength;
+    double _thighLength;
+    double _shankLength;
+    double _XMiddleOfStep;
+    double _legLength;
+    MatrixXd _xHip;
+    MatrixXd _zHip;
+    Vector2d  _measuredDCM;
+    MatrixXd _sigma;
+    double _sigmaDesired;
+    double _X;
+    double _xdelta;
+    double _xdeltaNom;
+    double _xdeltaMin;
+    double _xdeltaMax;
 
-    Vector3d _rightFootPosition;
-    Vector3d _leftFootPosition;
-    Matrix3d _rightFootAttitude;
-    Matrix3d _lEftFootAttitude;
+    double _ydelta;
+    double _ydeltaNom;
+    double _ydeltaMin;
+    double _ydeltaMax;
+
+    double _xDCMOffset;
+    double _yDCMOffset;
+
+    double _xDCMOffsetNom;
+    double _yDCMOffsetNom;
+    MatrixXd _tempTigh;
+    MatrixXd _tempShank;
+    double _alpha1x;
+    double _alpha2x;
+    double _alpha3x;
+    double _alphaT;
+    double _alpha1y;
+    double _alpha2y;
+    double _alpha3y;
+    int _n;
+
+    MatrixXd _DCM;
+    double _XCoPDisplacementSS;
+    double _YCoPDisplacementSS;
+    double _mass;
+    double _XError;
+    double _YError;
+    bool _walkstate;
+    int _stepNumber;
+    MatrixXd _CoPHeel;
+    MatrixXd _CoPToe;
+    MatrixXd _CoP;
+    MatrixXd _gama;
+    MatrixXd _CoPDisplacement;
+    MatrixXd InitialCoP;
+    MatrixXd InitialDCM;
+    MatrixXd _error;
+    double _pelvisLength;
 public:
     TaskSpace();
-    Vector3d GetBodyPosition();
-    Matrix3d GetBodyAttitude();
+    QVector<double> timeVector;
+    QVector<double> DCMXVector;
+    QVector<double> DCMYVector;
+    QVector<double> InitCoPXVector;
+    QVector<double> InitCoPYVector;
+    QVector<double> EndCoPXVector;
+    QVector<double> EndCoPYVector;
+    MinimumJerkInterpolation Coef;
+    double time;
+    double globalTime;
+    MatrixXd Input;
+    QVector<double> RightFootXTrajectory;
+    QVector<double> RightFootYTrajectory;
+    QVector<double> RightFootZTrajectory;
 
-    Vector3d GetRightFootPosition();
-    Matrix3d GetRightFootAttitude();
+    QVector<double> LeftFootXTrajectory;
+    QVector<double> LeftFootYTrajectory;
+    QVector<double> LeftFootZTrajectory;
 
-    Matrix3d GetLeftFootAttitude();
-    Vector3d GetLeftFootPosition();
+    QVector<double> RightFootXVelocity;
+    QVector<double> RightFootYVelocity;
+    QVector<double> RightFootZVelocity;
 
-    void SetBodyPosition(Vector3d BodyPosition);
-    void SetBodyAttitude(Matrix3d BodyAttitude);
+    QVector<double> LeftFootXVelocity;
+    QVector<double> LeftFootYVelocity;
+    QVector<double> LeftFootZVelocity;
 
-    void SetRightFootPosition(Vector3d RightFootPosition);
-    void SetRightFootAttitude(Matrix3d RightFootAttitude);
+    QVector<double> RightFootXAcceleration;
+    QVector<double> RightFootYAcceleration;
+    QVector<double> RightFootZacceleration;
 
-    void SetLeftFootPosition(Vector3d LeftFootPosition);
-    void SetLeftFootAttitude(Matrix3d LeftFootAttitude );
+    QVector<double> LeftFootXAcceleration;
+    QVector<double> LeftFootYAcceleration;
+    QVector<double> LeftFootZAcceleration;
 
+    void SetDesiredMAxFootHeight(double desiredMaxFootHeight);
+    void SetWalkState(bool walkState);
+    void SetStepTimingGain(double alphaT4);
+    void SetStepPositionXGain(double alpha1);
+    void SetDeltaXGain(double alpha3);
+    void SetDCMOffsetXGain(double alpha4);
 
+    void SetStepPositionYGain(double alpha1);
+    void SetDeltaYGain(double alpha3);
+    void SetDCMOffsetYGain(double alpha4);
+    MatrixXd GetAccVelPos(MatrixXd Coef, double time, double ti, int PolynomialOrder);
+
+private:
+    MatrixXd QPController(int StepNumber, MatrixXd CoPDisplacementSS);
+    void GetDesiredParameter();
+    MatrixXd CoMDynamics(int stepNumber, double GamaX, MatrixXd CoPDisplacementSS);
+    MatrixXd RightFoot();
 };
+
 
 #endif // TASKSPACE_H
