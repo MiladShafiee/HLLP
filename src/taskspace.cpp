@@ -1,49 +1,5 @@
 #include "taskspace.h"
 
-void TaskSpace::SetWalkState(bool walkState)
-{
-    _walkstate=walkState;
-}
-
-void TaskSpace::SetStepTimingGain(double alphaT4)
-{
-    _alphaT=alphaT4;
-}
-
-void TaskSpace::SetStepPositionXGain(double alpha1)
-{
-    _alpha1x=alpha1;
-}
-
-void TaskSpace::SetStepPositionYGain(double alpha1)
-{
-    _alpha1y=alpha1;
-}
-
-void TaskSpace::SetDeltaXGain(double alpha3)
-{
-    _alpha2x=alpha3;
-}
-
-void TaskSpace::SetDeltaYGain(double alpha3)
-{
-    _alpha2y=alpha3;
-}
-
-
-void TaskSpace::SetDCMOffsetXGain(double alpha4)
-{
-    _alpha3x=alpha4;
-}
-
-void TaskSpace::SetDCMOffsetYGain(double alpha4)
-{
-    _alpha3y=alpha4;
-}
-void TaskSpace::SetDesiredMAxFootHeight(double desiredMaxFootHeight){
-
-    _desiredMAxFootHeight=desiredMaxFootHeight;
-}
 
 TaskSpace::TaskSpace()
 {
@@ -236,6 +192,10 @@ TaskSpace::TaskSpace()
     }
 
 }
+
+
+
+
 
 MatrixXd TaskSpace::QPController(int StepNumber,MatrixXd CoPDisplacementSS){
     MatrixXd H(7,7);
@@ -625,4 +585,50 @@ MatrixXd TaskSpace::GetAccVelPos(MatrixXd Coef,double time,double ti,int Polynom
     MatrixXd Output(1,3);
     Output<<X,V,A;
     return Output;
+}
+
+
+void TaskSpace::SetWalkState(bool walkState)
+{
+    _walkstate=walkState;
+}
+
+void TaskSpace::SetStepTimingGain(double alphaT4)
+{
+    _alphaT=alphaT4;
+}
+
+void TaskSpace::SetStepPositionXGain(double alpha1)
+{
+    _alpha1x=alpha1;
+}
+
+void TaskSpace::SetStepPositionYGain(double alpha1)
+{
+    _alpha1y=alpha1;
+}
+
+void TaskSpace::SetDeltaXGain(double alpha3)
+{
+    _alpha2x=alpha3;
+}
+
+void TaskSpace::SetDeltaYGain(double alpha3)
+{
+    _alpha2y=alpha3;
+}
+
+
+void TaskSpace::SetDCMOffsetXGain(double alpha4)
+{
+    _alpha3x=alpha4;
+}
+
+void TaskSpace::SetDCMOffsetYGain(double alpha4)
+{
+    _alpha3y=alpha4;
+}
+void TaskSpace::SetDesiredMAxFootHeight(double desiredMaxFootHeight){
+
+    _desiredMAxFootHeight=desiredMaxFootHeight;
 }

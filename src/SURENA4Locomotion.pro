@@ -30,7 +30,6 @@ SOURCES += \
     link.cpp \
     robot.cpp \
     qcustomplot.cpp \
-    sqdtaskspace.cpp \
     taskspace.cpp \
     minimumjerkinterpolation.cpp
 
@@ -39,7 +38,6 @@ HEADERS += \
     link.h \
     robot.h \
     qcustomplot.h \
-    sqdtaskspace.h \
     taskspace.h \
     minimumjerkinterpolation.h
 

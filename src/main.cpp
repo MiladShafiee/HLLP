@@ -2,7 +2,6 @@
 #include <QApplication>
 #include "Eigen/Dense"
 #include "robot.h"
-#include "sqdtaskspace.h"
 #include <Eigen/Geometry>
 #include <iostream>
 #include <cstdlib>
