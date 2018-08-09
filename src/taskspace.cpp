@@ -3,44 +3,62 @@
 
 TaskSpace::TaskSpace()
 {
+    MatrixXd Time(1,3);
+    Time<<0,1,2;
+    MatrixXd xposition(1,3);
+    xposition<<2.2,5.5,6.3;
+    MatrixXd xvelocity(1,3);
+    xvelocity<<0,INFINITY,0;
 
-    _XDesiredVelocity=1;
-    _YDesiredVelocity=0;
+    MatrixXd xacceleration(1,3);
+    xacceleration<<0,INFINITY,0;
+
+MatrixXd B=Coef.Coefficient(Time,xposition,xvelocity,xacceleration);
+    _XDesiredVelocity=0.2;
+    _YDesiredVelocity=0;// desired velocity in Y direction is not tested
     SetStepTimingGain(1);
     SetStepPositionXGain(1);
     SetDCMOffsetXGain(10000);
     SetDeltaXGain(1);
-    _n;
+    _n;//number of step for finding that which foot moves and which foot is support
 
     SetStepPositionYGain(1);
     SetDCMOffsetYGain(10000);
     SetDeltaYGain(1);
     time=0;
-    globalTime=0;
+    globalTime=0;//current time of simulation
     _MinStepLength = -0.500;
     _MinStepDuration= 0.2000;
-    _MaxStepLength =  0.500;
+    _MaxStepLength =  0.100;
     _MaxStepDuration = 0.8000;
     _MinStepWidth=0.1;
-    _MaxStepWidth=0.4;
-    _xdeltaMax=1;
+    _MaxStepWidth=0.2;
+    _xdeltaMax=1;//consider that now we don't have any double support or single support the zmp is constant
     _xdeltaMin=1;
     _xdeltaNom=1;
     _ydeltaMax=1;
     _ydeltaMin=1;
     _ydeltaNom=1;
-    _mass=60;
+
+    _mass=74.24;
     _gravity=9.80000;
     _PelvisHeight=0.8;
-    _pelvisLength=0.2;
+    _pelvisLength=0.23;
+    _ankleLength=1*0.12;
     _omega=sqrt(_gravity/_PelvisHeight);
+       _maxXDCMOffset= _MaxStepLength/(exp(_omega*_MinStepDuration)-1);
     GetDesiredParameter();
 
-    _desiredMAxFootHeight=0.2;
+    _desiredMAxFootHeight=0.05+_ankleLength;
+    _boundMaxFootHeight=_desiredMAxFootHeight+0.05;
 
     _DCM.resize(1,2);
     _DCM.fill(0);
-    _timeStep=0.001;
+    _CoM.resize(1,2);
+    _CoM.fill(0);
+
+
+    _timeStep=0.002;
     InitialCoP.resize(1,2);
     InitialCoP<<0,0.1;
     _CoPHeel.resize(1,2);
@@ -53,6 +71,8 @@ TaskSpace::TaskSpace()
     _stepNumber=1;
     _stepDuration=0.35;
     _xDCMOffsetNom=0.1456;
+    _xDCMOffsetNom=_desiredStepLength/(exp(_omega*_desiredStepDuration)-1);
+
     double mmmm;
     mmmm=InitialCoP(0,1)+-1*(_pelvisLength/(1+exp(_omega*_desiredStepDuration)));
     _yDCMOffsetNom=InitialCoP(0,1)+(-1)*(_pelvisLength/(1+exp(_omega*_desiredStepDuration)))-_desiredStepWidth/(1-exp(_omega*_desiredStepDuration));
@@ -76,6 +96,9 @@ TaskSpace::TaskSpace()
     InitialDCM.resize(1,2);
     InitialDCM<<_xDCMOffsetNom,_yDCMOffsetNom;
 
+    InitialCoM.resize(1,2);
+    InitialCoM<<_xDCMOffsetNom,_yDCMOffsetNom;
+
     _CoPDisplacement.resize(2,1);
     _CoPDisplacement<<_XCoPDisplacementSS,_YCoPDisplacementSS;
 
@@ -87,6 +110,25 @@ TaskSpace::TaskSpace()
 
     RightFootXAcceleration.append(0);
     RightFootYAcceleration.append(0);
+
+
+    LeftFootXVelocity.append(0);
+    LeftFootYVelocity.append(0);
+
+    LeftFootXTrajectory.append(0);
+    LeftFootYTrajectory.append(0);
+
+    LeftFootXAcceleration.append(0);
+    LeftFootYAcceleration.append(0);
+
+    LeftFootZTrajectory.append(_ankleLength);
+    LeftFootZVelocity.append(0);
+    LeftFootZAcceleration.append(0);
+
+    RightFootZTrajectory.append(_ankleLength);
+    RightFootZVelocity.append(0);
+    RightFootZacceleration.append(0);
+    _walkstate=true;
 
     while (_walkstate==true) {
 
@@ -118,8 +160,15 @@ TaskSpace::TaskSpace()
         _gama(_gama.rows()-1,0)=Input(3,0);
         _stepDuration=(1/_omega)*log(Input(3,0));
         timeVector.append(globalTime);
-        DCMXVector.append(DCM(0,1));
+        DCMXVector.append(DCM(0,0));
+        DCMYVector.append(DCM(0,1));
+        CoMXVector.append(DCM(0,2));
+        CoMYVector.append(DCM(0,3));
+
+        //           InitCoPXVector.append(InitialCoP.col(0));
+        //                    InitCoPYVector.append(InitialCoP.col(1));
         EndCoPYVector.append( InitialCoP( InitialCoP.rows()-1,1));
+        EndCoPXVector.append( InitialCoP( InitialCoP.rows()-1,0));
         if (globalTime==0) {
             RightFootXTrajectory.append(InitialCoP(0,0));
             RightFootXVelocity.append(0);
@@ -131,9 +180,24 @@ TaskSpace::TaskSpace()
             RightFootYAcceleration.append(0);
 
 
-            RightFootZTrajectory.append(0);
+            RightFootZTrajectory.append(_ankleLength);
             RightFootZVelocity.append(0);
             RightFootZacceleration.append(0);
+
+
+            LeftFootXTrajectory.append(InitialCoP(0,0));
+            LeftFootXVelocity.append(0);
+            LeftFootXAcceleration.append(0);
+
+
+            LeftFootYTrajectory.append(1*InitialCoP(0,1));
+            LeftFootYVelocity.append(0);
+            LeftFootYAcceleration.append(0);
+
+
+            LeftFootZTrajectory.append(_ankleLength);
+            LeftFootZVelocity.append(0);
+            LeftFootZAcceleration.append(0);
         }
         else {
             MatrixXd tempRightFoot= RightFoot();
@@ -150,6 +214,23 @@ TaskSpace::TaskSpace()
             RightFootZTrajectory.append(tempRightFoot(0,6));
             RightFootZVelocity.append(tempRightFoot(0,7));
             RightFootZacceleration.append(tempRightFoot(0,8));
+
+
+
+            MatrixXd tempLeftFoot= LeftFoot();
+
+            LeftFootXTrajectory.append(tempLeftFoot(0,0));
+            LeftFootXVelocity.append(tempLeftFoot(0,1));
+            LeftFootXAcceleration.append(tempLeftFoot(0,2));
+
+            LeftFootYTrajectory.append(tempLeftFoot(0,3));
+            LeftFootYVelocity.append(tempLeftFoot(0,4));
+            LeftFootYAcceleration.append(tempLeftFoot(0,5));
+
+
+            LeftFootZTrajectory.append(tempLeftFoot(0,6));
+            LeftFootZVelocity.append(tempLeftFoot(0,7));
+            LeftFootZAcceleration.append(tempLeftFoot(0,8));
         }
 
 
@@ -173,6 +254,10 @@ TaskSpace::TaskSpace()
             InitialCoP.conservativeResize(InitialCoP.rows()+1,NoChange);
             InitialCoP(InitialCoP.rows()-1,0)=Input(0,0);
             InitialCoP(InitialCoP.rows()-1,1)=Input(4,0);
+
+            InitialCoM.conservativeResize(InitialCoM.rows()+1,NoChange);
+            InitialCoM(InitialCoM.rows()-1,0)=DCM(0,2);
+            InitialCoM(InitialCoM.rows()-1,1)=DCM(0,3);
 
             _stepNumber=_stepNumber+1;
             _xdeltaMax =((2*_XCoPDisplacementSS)/InitialCoP(InitialCoP.rows()-1,0))+1;
@@ -301,14 +386,18 @@ MatrixXd TaskSpace::CoMDynamics(int stepNumber, double GamaX, MatrixXd CoPDispla
     MatrixXd TempDCM;
     XCoPDisplacementSS=CoPDisplacementSS(0,0);
     YCoPDisplacementSS=CoPDisplacementSS(1,0);
-
+    _CoM.conservativeResize(_CoM.rows()+1,NoChange);
     _DCM.conservativeResize(_DCM.rows()+1,NoChange);
     _DCM(_DCM.rows()-1,0)=((InitialCoP(stepNumber-1,0)- XCoPDisplacementSS)*(1-_xdeltaNom)/(1-(1/GamaX)))*(0.500*exp(-_omega*time)-0.500*exp(_omega*time))+(InitialCoP(stepNumber-1,0)- XCoPDisplacementSS)*((_xdeltaNom-(1/GamaX))/(1-(1/GamaX)))*(1-exp(_omega*time))+InitialDCM(stepNumber-1,0)*exp(_omega*time);
     _DCM(_DCM.rows()-1,1)=((InitialCoP(stepNumber-1,1)- YCoPDisplacementSS)*(1-_ydeltaNom)/(1-(1/GamaX)))*(0.500*exp(-_omega*time)-0.500*exp(_omega*time))+(InitialCoP(stepNumber-1,1)- YCoPDisplacementSS)*((_ydeltaNom-(1/GamaX))/(1-(1/GamaX)))*(1-exp(_omega*time))+InitialDCM(stepNumber-1,1)*exp(_omega*time);
+    _CoM(_CoM.rows()-1,0)=(InitialCoM(stepNumber-1,0)-_DCM(_DCM.rows()-1,0))*exp(-_omega*time)+_DCM(_DCM.rows()-1,0);
+    _CoM(_CoM.rows()-1,1)=(InitialCoM(stepNumber-1,1)-_DCM(_DCM.rows()-1,1))*exp(-_omega*time)+_DCM(_DCM.rows()-1,1);
     double _DCMx=_DCM(_DCM.rows()-1,0);
     double _DCMy=_DCM(_DCM.rows()-1,1);
-    TempDCM.resize(1,2);
-    TempDCM<<_DCMx,_DCMy;
+    double _CoMy=_CoM(_CoM.rows()-1,1);
+    double _CoMx=_CoM(_CoM.rows()-1,0);
+    TempDCM.resize(1,4);
+    TempDCM<<_DCMx,_DCMy,_CoMx,_CoMy;
     return TempDCM;
 
 }
@@ -457,104 +546,326 @@ MatrixXd TaskSpace::RightFoot(){
         dy=0;
         ddy=0;
     }
+    if (_n%2==0){
+        MatrixXd H(10,10);
+        MatrixXd F(1,10);
+        MatrixXd Aiq(2,10);
+        MatrixXd biq(2,1);
+        MatrixXd Aeq;
+        MatrixXd beq;
 
-    MatrixXd H(10,10);
-    MatrixXd F(1,10);
-    MatrixXd Aiq(2,10);
-    MatrixXd biq(2,1);
-    MatrixXd Aeq;
-    MatrixXd beq;
+        if(time!=_timeStep){
+            Aeq.resize(9,10);
+            beq.resize(9,1);
 
-    if(time!=_timeStep){
-        Aeq.resize(9,10);
-        beq.resize(9,1);
+        }
 
+        else{
+
+            Aeq.resize(6,10);
+            beq.resize(6,1);
+
+
+        }
+
+        H<<2*pow((Time(0,1)/2-t0),18),2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),
+                2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),
+                2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),
+                2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),
+                2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),
+                2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),
+                2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),
+                2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),
+                2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),
+                2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),2*pow((Time(0,1)/2-t0),0);
+
+        F<<-2*pow((Time(0,1)/2-t0),9)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),8)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),7)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),6)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),5)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),4)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),3)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),2)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),1)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),0)*_desiredMAxFootHeight;
+
+
+        Aiq<<pow((time-t0),9),pow((time-t0),8),pow((time-t0),7),pow((time-t0),6),pow((time-t0),5),pow((time-t0),4),pow((time-t0),3),pow((time-t0),2),pow((time-t0),1),pow((time-t0),0),
+                -1*pow((time-t0),9),-1*pow((time-t0),8),-1*pow((time-t0),7),-1*pow((time-t0),6),-1*pow((time-t0),5),-1*pow((time-t0),4),-1*pow((time-t0),3),-1*pow((time-t0),2),-1*pow((time-t0),1),-1*pow((time-t0),0);
+        biq<<_boundMaxFootHeight,-1*_ankleLength;
+        if(time!=_timeStep){//at the fist timestep we dont have any data so the constraint on the position,velocity and acceleration of  last step will be removeed
+
+            Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
+                    pow((time-_timeStep-t0),9),pow((time-_timeStep-t0),8),pow((time-_timeStep-t0),7),pow((time-_timeStep-t0),6),pow((time-_timeStep-t0),5),pow((time-_timeStep-t0),4),pow((time-_timeStep-t0),3),pow((time-_timeStep-t0),2),pow((time-_timeStep-t0),1),1,
+                    pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
+                    9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
+                    9*pow((time-_timeStep-t0),8),8*pow((time-_timeStep-t0),7),7*pow((time-_timeStep-t0),6),6*pow((time-_timeStep-t0),5),5*pow((time-_timeStep-t0),4),4*pow((time-_timeStep-t0),3),3*pow((time-_timeStep-t0),2),2*pow((time-_timeStep-t0),1),1,0,
+                    9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
+                    9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
+                    9*8*pow((time-_timeStep-t0),7),8*7*pow((time-_timeStep-t0),6),7*6*pow((time-_timeStep-t0),5),6*5*pow((time-_timeStep-t0),4),5*4*pow((time-_timeStep-t0),3),4*3*pow((time-_timeStep-t0),2),3*2*pow((time-_timeStep-t0),1),2,0,0,
+                    9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
+            beq<<_ankleLength,RightFootZTrajectory[RightFootZTrajectory.size()-1],_ankleLength,0,RightFootZVelocity[RightFootZVelocity.size()-1],0,0,RightFootZacceleration[RightFootZacceleration.size()-1],0;
+        }
+
+        else{
+            Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
+                    pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
+                    9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
+                    9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
+                    9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
+                    9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
+
+            beq<<1*_ankleLength,1*_ankleLength,0,0,0,0;
+
+        }
+
+        VectorXd sol(H.rows());
+        MatrixXd HTemp2 = H;
+
+        VectorXd  ci0=biq;
+        MatrixXd CIT=-1*Aiq.transpose();
+
+
+        MatrixXd CE=1*Aeq.transpose();
+        VectorXd ce0=-1*beq;
+
+
+        VectorXd g(Map<VectorXd>(F.data(),F.cols()*F.rows()));
+
+        double optCost;
+
+        optCost = solve_quadprog(HTemp2, g, CE,ce0 ,CIT , ci0, sol);
+        if(optCost==std::numeric_limits<double>::infinity()){
+            qDebug("Quadratic Programming for Foot Z Trajectory failed!");
+        }
+
+        MatrixXd CoefZ = sol;
+        MatrixXd outputz= GetAccVelPos(CoefZ.transpose(),time,0,9);
+        if (outputz(0,0)<_ankleLength){
+            //Whenever the equality constraint for previous timeStep does not satisfied this part will activate
+            //we have sometime a confliction between equality and inequality
+              //Always the equality constraint should be satisfiy then the inequality constraint will satisfy.
+            //and therefore there is some situation that equality is satisfied but inequlaity is not satisfied
+            //one situation is that the last timestep trajectory comes a little smaller than ankleHeight therefore in the next timestep the equality constraint use this value as a bound
+            //therefore in a undesirable loop it deacrease and because the priority is on the equality constraint, the inequality constraint that say the heigh of foot should be larger the ankle height will be neglected
+            //based on above sicussion we use following statement to correct this preocedure
+            outputz(0,0)=_ankleLength;
+            outputz(0,1)=-0*outputz(0,1);
+            outputz(0,2)=-0*outputz(0,2);
+        }
+        z=outputz(0,0);
+        dz=outputz(0,1);
+        ddz=outputz(0,2);
     }
 
-    else{
-
-        Aeq.resize(6,10);
-        beq.resize(6,1);
-
-
+    else {
+        z=RightFootZTrajectory[RightFootZTrajectory.size()-1];
+        dz=0;
+        ddz=0;
     }
-
-    H<<2*pow((Time(0,1)/2-t0),18),2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),
-            2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),
-            2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),
-            2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),
-            2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),
-            2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),
-            2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),
-            2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),
-            2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),
-            2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),2*pow((Time(0,1)/2-t0),0);
-
-    F<<-2*pow((Time(0,1)/2-t0),9)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),8)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),7)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),6)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),5)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),4)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),3)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),2)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),1)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),0)*_desiredMAxFootHeight;
-
-
-    Aiq<<pow((time-t0),9),pow((time-t0),8),pow((time-t0),7),pow((time-t0),6),pow((time-t0),5),pow((time-t0),4),pow((time-t0),3),pow((time-t0),2),pow((time-t0),1),pow((time-t0),0),
-            pow(-1*(time-t0),9),-1*pow((time-t0),8),-1*pow((time-t0),7),-1*pow((time-t0),6),-1*pow((time-t0),5),-1*pow((time-t0),4),-1*pow((time-t0),3),-1*pow((time-t0),2),-1*pow((time-t0),1),-1*pow((time-t0),0);
-    biq<<_desiredMAxFootHeight+0.05,0;
-    if(time!=_timeStep){
-        Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
-                pow((time-_timeStep-t0),9),pow((time-_timeStep-t0),8),pow((time-_timeStep-t0),7),pow((time-_timeStep-t0),6),pow((time-_timeStep-t0),5),pow((time-_timeStep-t0),4),pow((time-_timeStep-t0),3),pow((time-_timeStep-t0),2),pow((time-_timeStep-t0),1),1,
-                pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
-                9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
-                9*pow((time-_timeStep-t0),8),8*pow((time-_timeStep-t0),7),7*pow((time-_timeStep-t0),6),6*pow((time-_timeStep-t0),5),5*pow((time-_timeStep-t0),4),4*pow((time-_timeStep-t0),3),3*pow((time-_timeStep-t0),2),2*pow((time-_timeStep-t0),1),1,0,
-                9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
-                9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
-                9*8*pow((time-_timeStep-t0),7),8*7*pow((time-_timeStep-t0),6),7*6*pow((time-_timeStep-t0),5),6*5*pow((time-_timeStep-t0),4),5*4*pow((time-_timeStep-t0),3),4*3*pow((time-_timeStep-t0),2),3*2*pow((time-_timeStep-t0),1),2,0,0,
-                9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
-
-        beq<<0,RightFootZTrajectory[RightFootZTrajectory.size()-1],0,0,RightFootZVelocity[RightFootZVelocity.size()-1],0,0,RightFootZacceleration[RightFootZacceleration.size()-1],0;
-    }
-    else{
-        Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
-                pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
-                9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
-                9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
-                9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
-                9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
-
-
-
-        beq<<0,0,0,0,0,0;
-
-    }
-
-    VectorXd sol(H.rows());
-    MatrixXd HTemp2 = H;
-
-    VectorXd  ci0=biq;
-    MatrixXd CIT=-1*Aiq.transpose();
-
-
-    MatrixXd CE=-1*Aeq.transpose();
-    VectorXd ce0=beq;
-
-
-    VectorXd g(Map<VectorXd>(F.data(),F.cols()*F.rows()));
-
-    double optCost;
-
-    optCost = solve_quadprog(HTemp2, g, CE,ce0 ,CIT , ci0, sol);
-    if(optCost==std::numeric_limits<double>::infinity()){
-        qDebug("Quadratic Programming for Foot Z Trajectory failed!");
-    }
-
-    MatrixXd CoefZ = sol;
-    MatrixXd outputz= GetAccVelPos(CoefZ.transpose(),time,0,9);
-
-    z=outputz(0,0);
-    dz=outputz(0,1);
-    ddz=outputz(0,2);
 
 
     MatrixXd FootTrajectories(1,9);
     FootTrajectories<<x,dx,ddx,y,dy,ddy,z,dz,ddz;
     return FootTrajectories;
 }
+
+
+MatrixXd TaskSpace::LeftFoot(){
+    double x;
+    double xf;
+    double dx;
+    double ddx;
+    double y;
+    double dy;
+    double ddy;
+    double z;
+    double dz;
+    double ddz;
+    double Yaw;
+    double Roll;
+    double Pitch;
+    MatrixXd Time;
+    MatrixXd xposition;
+    MatrixXd xvelocity;
+    MatrixXd xacceleration;
+    double t0=0;
+    MatrixXd yposition;
+    MatrixXd yvelocity;
+    MatrixXd yacceleration;
+    Time.resize(1,2);
+    Time<<time-_timeStep,(1/_omega)*log(Input(3,0));
+
+
+    if (_n%2!=0){
+        //left foot is support foot
+        //        if (time==_timeStep){
+        //            position.resize(1,2);
+        //            velocity.resize(1,2);
+        //            acceleration.resize(1,2);
+        //            position(0,0)=RightFootXTrajectory[RightFootXTrajectory.size()-1];
+        //            velocity(0,0)=0;
+        //            acceleration(0,0)=0;
+        //            position(0,1)=Input(0,0);
+        //            velocity(0,1)=0;
+        //            acceleration(0,1)=0;
+        //        }
+
+
+        //   else{
+
+        xposition.resize(1,2);
+        xvelocity.resize(1,2);
+        xacceleration.resize(1,2);
+        xposition(0,0)=LeftFootXTrajectory[LeftFootXTrajectory.size()-1];
+        xvelocity(0,0)=LeftFootXVelocity[LeftFootXVelocity.size()-1];
+        xacceleration(0,0)=LeftFootXAcceleration[LeftFootXAcceleration.size()-1];
+        xposition(0,1)=Input(0,0);
+        xvelocity(0,1)=0;
+        xacceleration(0,1)=0;
+        //  }
+
+
+        yposition.resize(1,2);
+        yvelocity.resize(1,2);
+        yacceleration.resize(1,2);
+        yposition(0,0)=LeftFootYTrajectory[LeftFootYTrajectory.size()-1];
+        yvelocity(0,0)=LeftFootYVelocity[LeftFootYVelocity.size()-1];
+        yacceleration(0,0)=LeftFootYAcceleration[LeftFootYAcceleration.size()-1];
+        yposition(0,1)=Input(4,0);
+        yvelocity(0,1)=0;
+        yacceleration(0,1)=0;
+
+        MatrixXd CoefX =Coef.Coefficient(Time,xposition,xvelocity,xacceleration);
+        MatrixXd outputx= GetAccVelPos(CoefX.topRows(1),time,time-_timeStep,5);
+
+        x=outputx(0,0);
+        dx=outputx(0,1);
+        ddx=outputx(0,2);
+
+        MatrixXd CoefY =Coef.Coefficient(Time,yposition,yvelocity,yacceleration);
+        MatrixXd outputy= GetAccVelPos(CoefY.topRows(1),time,time-_timeStep,5);
+
+        y=outputy(0,0);
+        dy=outputy(0,1);
+        ddy=outputy(0,2);
+
+    }
+
+
+    else {
+        x=LeftFootXTrajectory[LeftFootXTrajectory.size()-1];
+        dx=0;
+        ddx=0;
+
+        y=LeftFootYTrajectory[LeftFootYTrajectory.size()-1];
+        dy=0;
+        ddy=0;
+    }
+
+
+
+    if (_n%2!=0){
+        MatrixXd H(10,10);
+        MatrixXd F(1,10);
+        MatrixXd Aiq(2,10);
+        MatrixXd biq(2,1);
+        MatrixXd Aeq;
+        MatrixXd beq;
+
+        if(time!=_timeStep){
+            Aeq.resize(9,10);
+            beq.resize(9,1);
+
+        }
+
+        else{
+
+            Aeq.resize(6,10);
+            beq.resize(6,1);
+
+
+        }
+
+        H<<2*pow((Time(0,1)/2-t0),18),2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),
+                2*pow((Time(0,1)/2-t0),17),2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),
+                2*pow((Time(0,1)/2-t0),16),2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),
+                2*pow((Time(0,1)/2-t0),15),2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),
+                2*pow((Time(0,1)/2-t0),14),2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),
+                2*pow((Time(0,1)/2-t0),13),2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),
+                2*pow((Time(0,1)/2-t0),12),2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),
+                2*pow((Time(0,1)/2-t0),11),2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),
+                2*pow((Time(0,1)/2-t0),10),2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),
+                2*pow((Time(0,1)/2-t0),9),2*pow((Time(0,1)/2-t0),8),2*pow((Time(0,1)/2-t0),7),2*pow((Time(0,1)/2-t0),6),2*pow((Time(0,1)/2-t0),5),2*pow((Time(0,1)/2-t0),4),2*pow((Time(0,1)/2-t0),3),2*pow((Time(0,1)/2-t0),2),2*pow((Time(0,1)/2-t0),1),2*pow((Time(0,1)/2-t0),0);
+
+        F<<-2*pow((Time(0,1)/2-t0),9)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),8)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),7)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),6)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),5)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),4)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),3)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),2)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),1)*_desiredMAxFootHeight,-2*pow((Time(0,1)/2-t0),0)*_desiredMAxFootHeight;
+
+
+        Aiq<<pow((time-t0),9),pow((time-t0),8),pow((time-t0),7),pow((time-t0),6),pow((time-t0),5),pow((time-t0),4),pow((time-t0),3),pow((time-t0),2),pow((time-t0),1),pow((time-t0),0),
+                -1* pow((time-t0),9),-1*pow((time-t0),8),-1*pow((time-t0),7),-1*pow((time-t0),6),-1*pow((time-t0),5),-1*pow((time-t0),4),-1*pow((time-t0),3),-1*pow((time-t0),2),-1*pow((time-t0),1),-1*pow((time-t0),0);
+        biq<<_boundMaxFootHeight,-1*_ankleLength;
+        if(time!=_timeStep){
+            Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
+                    pow((time-_timeStep-t0),9),pow((time-_timeStep-t0),8),pow((time-_timeStep-t0),7),pow((time-_timeStep-t0),6),pow((time-_timeStep-t0),5),pow((time-_timeStep-t0),4),pow((time-_timeStep-t0),3),pow((time-_timeStep-t0),2),pow((time-_timeStep-t0),1),1,
+                    pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
+                    9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
+                    9*pow((time-_timeStep-t0),8),8*pow((time-_timeStep-t0),7),7*pow((time-_timeStep-t0),6),6*pow((time-_timeStep-t0),5),5*pow((time-_timeStep-t0),4),4*pow((time-_timeStep-t0),3),3*pow((time-_timeStep-t0),2),2*pow((time-_timeStep-t0),1),1,0,
+                    9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
+                    9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
+                    9*8*pow((time-_timeStep-t0),7),8*7*pow((time-_timeStep-t0),6),7*6*pow((time-_timeStep-t0),5),6*5*pow((time-_timeStep-t0),4),5*4*pow((time-_timeStep-t0),3),4*3*pow((time-_timeStep-t0),2),3*2*pow((time-_timeStep-t0),1),2,0,0,
+                    9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
+
+            beq<<_ankleLength,LeftFootZTrajectory[LeftFootZTrajectory.size()-1],_ankleLength,0,LeftFootZVelocity[LeftFootZVelocity.size()-1],0,0,LeftFootZAcceleration[LeftFootZAcceleration.size()-1],0;
+        }
+        else{
+            Aeq<<pow((0-t0),9),pow((0-t0),8),pow((0-t0),7),pow((0-t0),6),pow((0-t0),5),pow((0-t0),4),pow((0-t0),3),pow((0-t0),2),pow((0-t0),1),1,
+                    pow((Time(0,1)-t0),9),pow((Time(0,1)-t0),8),pow((Time(0,1)-t0),7),pow((Time(0,1)-t0),6),pow((Time(0,1)-t0),5),pow((Time(0,1)-t0),4),pow((Time(0,1)-t0),3),pow((Time(0,1)-t0),2),pow((Time(0,1)-t0),1),1,
+                    9*pow((0-t0),8),8*pow((0-t0),7),7*pow((0-t0),6),6*pow((0-t0),5),5*pow((0-t0),4),4*pow((0-t0),3),3*pow((0-t0),2),2*pow((0-t0),1),1*pow((0-t0),0),0*pow((0-t0),0),
+                    9*pow((Time(0,1)-t0),8),8*pow((Time(0,1)-t0),7),7*pow((Time(0,1)-t0),6),6*pow((Time(0,1)-t0),5),5*pow((Time(0,1)-t0),4),4*pow((Time(0,1)-t0),3),3*pow((Time(0,1)-t0),2),2*pow((Time(0,1)-t0),1),1*pow((Time(0,1)-t0),0),0*pow((Time(0,1)-t0),0),
+                    9*8*pow((0-t0),7),8*7*pow((0-t0),6),7*6*pow((0-t0),5),6*5*pow((0-t0),4),5*4*pow((0-t0),3),4*3*pow((0-t0),2),3*2*pow((0-t0),1),2*1*pow((0-t0),0),0*pow((0-t0),0),0*pow((0-t0),0),
+                    9*8*pow((Time(0,1)-t0),7),8*7*pow((Time(0,1)-t0),6),7*6*pow((Time(0,1)-t0),5),6*5*pow((Time(0,1)-t0),4),5*4*pow((Time(0,1)-t0),3),4*3*pow((Time(0,1)-t0),2),3*2*pow((Time(0,1)-t0),1),2*1*pow((Time(0,1)-t0),0),0,0;
+
+
+
+            beq<<_ankleLength,_ankleLength,0,0,0,0;
+
+        }
+
+        VectorXd sol(H.rows());
+        MatrixXd HTemp2 = H;
+
+        VectorXd  ci0=biq;
+        MatrixXd CIT=-1*Aiq.transpose();
+
+
+        MatrixXd CE=-1*Aeq.transpose();
+        VectorXd ce0=beq;
+
+
+        VectorXd g(Map<VectorXd>(F.data(),F.cols()*F.rows()));
+
+        double optCost;
+
+        optCost = solve_quadprog(HTemp2, g, CE,ce0 ,CIT , ci0, sol);
+        if(optCost==std::numeric_limits<double>::infinity()){
+            qDebug("Quadratic Programming for Foot Z Trajectory failed!");
+        }
+
+        MatrixXd CoefZ = sol;
+        MatrixXd outputz= GetAccVelPos(CoefZ.transpose(),time,0,9);
+
+        if (outputz(0,0)<_ankleLength){
+            outputz(0,0)=_ankleLength;
+            outputz(0,1)=-0*outputz(0,1);
+            outputz(0,2)=-0*outputz(0,2);
+        }
+        z=outputz(0,0);
+        dz=outputz(0,1);
+        ddz=outputz(0,2);
+    }
+
+    else {
+        z=LeftFootZTrajectory[LeftFootZTrajectory.size()-1];
+        dz=0;
+        ddz=0;
+    }
+    MatrixXd FootTrajectories(1,9);
+    FootTrajectories<<x,dx,ddx,y,dy,ddy,z,dz,ddz;
+    return FootTrajectories;
+}
+
 
 
 

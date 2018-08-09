@@ -29,12 +29,12 @@ class Robot
     MatrixXd CalcJacobian(MatrixXi route);
     double IKLevenbergMarquardt(Link Target, QString current);
 
-    MatrixXd _joinAngles;
+    MatrixXd _jointAngles;
     MatrixXi _route;
     MatrixXd _leftLegRoute;
     MatrixXd _rightLegRoute;
 public:
-    explicit Robot(MatrixXd PelvisTrajectory,MatrixXd AnkleTrajectory);
+    explicit Robot();
     //TaskSpace StraightLEgWalk;
     QList<Link> GetLinks();
     MatrixXi Getroute();
@@ -47,9 +47,15 @@ public:
     QByteArray content;
     QHash <QString,int> MapingName2ID;
     QHash <int,QString> MapingID2Name;
+    MatrixXd IKAnalytical(Link Body, double D, double E, double A, double B, Link Foot);
+    void ForwardKinematicPrimary(int input);
 signals:
 
 public slots:
+private:
+    MatrixXd RPitch(double theta);
+    MatrixXd RRoll(double phi);
+    int Sign(double v);
 };
 
 #endif // ROBOT_H

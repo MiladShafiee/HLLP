@@ -15,7 +15,7 @@
 #include "Eigen/LU"
 #include<math.h>
 #include <unsupported/Eigen/Polynomials>
-#include<qtimer.h>>
+#include<qtimer.h>
 #include <QElapsedTimer>
 #include "minimumjerkinterpolation.h"
 using namespace std;
@@ -38,6 +38,7 @@ class TaskSpace
     double _stepDuration;
     int _nSteps;
     double _desiredMAxFootHeight;
+    double _boundMaxFootHeight;
     double _desiredStepLength;
     double _desiredStepWidth;
     double _MaxStepLength;
@@ -85,6 +86,7 @@ class TaskSpace
     int _n;
 
     MatrixXd _DCM;
+     MatrixXd _CoM;
     double _XCoPDisplacementSS;
     double _YCoPDisplacementSS;
     double _mass;
@@ -99,13 +101,18 @@ class TaskSpace
     MatrixXd _CoPDisplacement;
     MatrixXd InitialCoP;
     MatrixXd InitialDCM;
+    MatrixXd InitialCoM;
     MatrixXd _error;
     double _pelvisLength;
+   double _maxXDCMOffset;
+   double _maxYDCMOffset;
 public:
     TaskSpace();
     QVector<double> timeVector;
     QVector<double> DCMXVector;
     QVector<double> DCMYVector;
+    QVector<double> CoMXVector;
+    QVector<double> CoMYVector;
     QVector<double> InitCoPXVector;
     QVector<double> InitCoPYVector;
     QVector<double> EndCoPXVector;
@@ -150,12 +157,15 @@ public:
     void SetDCMOffsetYGain(double alpha4);
     MatrixXd GetAccVelPos(MatrixXd Coef, double time, double ti, int PolynomialOrder);
 
+    MatrixXd LeftFoot();
+    MatrixXd RightFoot();
 private:
     MatrixXd QPController(int StepNumber, MatrixXd CoPDisplacementSS);
     void GetDesiredParameter();
     MatrixXd CoMDynamics(int stepNumber, double GamaX, MatrixXd CoPDisplacementSS);
-    MatrixXd RightFoot();
 };
+
+
 
 
 #endif // TASKSPACE_H

@@ -5,6 +5,7 @@
 #include "Eigen/Dense"
 #include <qdebug.h>
 #include <qmath.h>
+#include <QMainWindow>
 using namespace Eigen;
 using namespace std;
 
@@ -21,6 +22,11 @@ public:
     QVector<int> findIsinf(MatrixXd in,bool inf);
     MatrixXd MatrixIndex(MatrixXd in, QVector<int> indexes);
     MatrixXd AddtoIndexes(MatrixXd in, MatrixXd val, QVector<int> indexes);
+    MatrixXd Coefficient1(MatrixXd xp, MatrixXd ord, MatrixXd con, double fig_res);
+    MatrixXd PMaker(double t);
+    MatrixXd isinf(MatrixXd in);
+    MatrixXd isnan(MatrixXd in);
+    double SUM1(int first, int last, MatrixXd Mat);
 };
 
 #endif // MINIMUMJERKINTERPOLATION_H

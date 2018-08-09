@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui  printsupport
 QMAKE_CXXFLAGS += -std=c++0x
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
@@ -31,7 +31,9 @@ SOURCES += \
     robot.cpp \
     qcustomplot.cpp \
     taskspace.cpp \
-    minimumjerkinterpolation.cpp
+    minimumjerkinterpolation.cpp \
+    chartform.cpp \
+    taskspaceoffline.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +41,10 @@ HEADERS += \
     robot.h \
     qcustomplot.h \
     taskspace.h \
-    minimumjerkinterpolation.h
+    minimumjerkinterpolation.h \
+    chartform.h \
+    taskspaceoffline.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    chartform.ui

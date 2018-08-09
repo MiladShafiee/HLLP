@@ -1,9 +1,9 @@
 ﻿#include "robot.h"
 //note that ID is one unit more than Links index
 
-Robot::Robot( MatrixXd PelvisTrajectory, MatrixXd AnkleTrajectory)
+Robot::Robot()
 {
-    QString address="..//src//RobotData//test.txt";
+    QString address="/home/milad/src/RobotData/test.txt";
     if (!FileExists(address))
     {
         qWarning()<<"Invalid Robot data Path:"<<address;
@@ -15,32 +15,54 @@ Robot::Robot( MatrixXd PelvisTrajectory, MatrixXd AnkleTrajectory)
     content = file.readAll();
 
     Links= CreateRobotLinks( content );
+     ForwardKinematicPrimary(1);
     MatrixXi leftRoute= GetLeftLegRoute();
     MatrixXi rightRoute= GetRightLegRoute();
-    MatrixXi _LegRoute= FindRoutfromRoot2Destination("LArm_WristP_J7");
+    //MatrixXi _LegRoute= FindRoutfromRoot2Destination("LArm_WristP_J7");
     MatrixXd rightLegAngle(1,6);
-    rightLegAngle<<0 ,0 ,-25 ,50, -25, 0;
+    MatrixXd leftLegAngle(1,6);
+    rightLegAngle<<17 ,18 ,-1*29 ,1*65, -1*25, 13;
+    leftLegAngle<<17 ,18 ,-1*29 ,1*65, -1*25, 13;
     VectorXd x;
-    SetJointAngle(rightLegAngle*(M_PI/180),rightRoute);
+//    rightLegAngle<<0 ,0 ,0 ,0, 0, 0;
+//    leftLegAngle<<0 ,0 ,0 ,0,0, 0;
 
+    SetJointAngle(rightLegAngle*(M_PI/180),rightRoute);
+    SetJointAngle(leftLegAngle*(M_PI/180),leftRoute);
+   qDebug()<<(M_PI/180)*17<<(M_PI/180)*18 <<(M_PI/180)*-1*29 <<(M_PI/180)*1*65<<(M_PI/180)*-1*25<<(M_PI/180)* 13;
+    // qDebug()<<(M_PI/180)*0<<(M_PI/180)*0 <<(M_PI/180)*-1*0<<(M_PI/180)*1*0<<(M_PI/180)*-1*0<<(M_PI/180)* 0;
     x.setLinSpaced(81,0,0.4);
-    qDebug()<<Links.size();
-    _joinAngles.conservativeResize(Links.size(),NoChange);
+    //qDebug()<<Links.size();
+    _jointAngles.conservativeResize(Links.size(),NoChange);
     MatrixXd q_m;
     MatrixXd x_m;
 
     int Nstep = x.rows();
     q_m = MatrixXd::Zero(Nstep,6);
-    x_m =  MatrixXd::Zero(Nstep,1);
+    x_m = MatrixXd::Zero(Nstep,1);
     Link Rfoot=Links[MapingName2ID.value("RLeg_AnkleR_J6")-1];
+    Link Lfoot=Links[MapingName2ID.value("LLeg_AnkleR_J6")-1];
+    Link body=Links[MapingName2ID.value("Body")-1];
     double errorm;
+//    MatrixXd mills(3,1);
+//    mills<<0, -0.1, 0.2;
+//    Rfoot.PositionInWorldCoordinate=mills;
+//    MatrixXd bdis(3,1);
+//    bdis<<0,0,0.7;
+//    body.PositionInWorldCoordinate=bdis;
+     MatrixXd Mil22=IKAnalytical(body,0.115,-0.109,0.37,0.36,Lfoot);
+     errorm=IKLevenbergMarquardt(Rfoot,"LLeg_AnkleR_J6");
+
     for (int var = 0; var < Nstep; var++) {
         Rfoot.PositionInWorldCoordinate(0)=x(var);
-        errorm=IKLevenbergMarquardt(Rfoot,"RLeg_AnkleR_J6");
-        //qDebug()<<errorm;
+        //errorm=IKLevenbergMarquardt(Lfoot,"LLeg_AnkleR_J6");
+        MatrixXd Mil=IKAnalytical(body,0.115,-0.109,0.37,0.36,Lfoot);
+        qDebug()<<errorm;
     }
     file.close();
 }
+
+
 
 QList<Link> Robot::GetLinks()
 {
@@ -196,7 +218,8 @@ MatrixXd Robot::Rodrigues(MatrixXd omega,double angle)
 
 
 
-void Robot::ForwardKinematic(int input)
+
+void Robot::ForwardKinematicPrimary(int input)
 {
     if (input==0) {
         return;
@@ -223,6 +246,33 @@ void Robot::ForwardKinematic(int input)
 
 }
 
+void Robot::ForwardKinematic(int input)
+{
+    if (input==0) {
+        return;
+    }
+
+    if (input!=1) {
+        MatrixXd positionInWorldCoordinate=Links[Links[input-1].GetMotherID()-1].AttitudeInWorldCoordinate*Links[input-1].GetJointPositionRelative2Parent()+Links[Links[input-1].GetMotherID()-1].PositionInWorldCoordinate;
+        MatrixXd attitudeInWorldCoordinate=Links[Links[input-1].GetMotherID()-1].AttitudeInWorldCoordinate*Rodrigues(Links[input-1].GetJointAxisVectorLocal(),Links[input-1].JointAngle);
+
+        Links[input-1].AttitudeInWorldCoordinate=attitudeInWorldCoordinate;
+        Links[input-1].PositionInWorldCoordinate=positionInWorldCoordinate;
+
+    } /* else {
+        QList <QByteArray> PositionInWorldCoordinate= GetContentOfRobot("PositionInWorldCoordinate",content);
+
+        MatrixXd positionInWorldCoordinate= ExtractionOfMatrix( PositionInWorldCoordinate[input-1]);
+        QList <QByteArray> AttitudeInWorldCoordinate= GetContentOfRobot("AttitudeInWorldCoordinate",content);
+        MatrixXd attitudeInWorldCoordinate= ExtractionOfMatrix( AttitudeInWorldCoordinate[input-1]);
+        Links[input-1].AttitudeInWorldCoordinate=attitudeInWorldCoordinate;
+        Links[input-1].PositionInWorldCoordinate=positionInWorldCoordinate;
+    }*/
+    ForwardKinematic( Links[input-1].GetChildID());
+    ForwardKinematic( Links[input-1].GetSisterID());
+
+}
+
 
 
 
@@ -243,7 +293,7 @@ void Robot::MoveJoints(MatrixXi route, MatrixXd deltaJointAngle)
     for (int var = 0; var < route.cols(); var++) {
 
         index=route(var)-1;
-        Links[index].JointAngle=Links[index].JointAngle+deltaJointAngle(index-1);
+        Links[index].JointAngle=Links[index].JointAngle+deltaJointAngle(var);
         //_joinAngles.block(0,);
     }
     //  qDebug()<<"milad";
@@ -272,8 +322,25 @@ MatrixXi Robot::FindRoutfromRoot2Destination(QString Destination)
 
 }
 
+int Robot::Sign(double v) {
+  return (v < 0) ? -1 : ((v > 0) ? 1 : 0);
+}
 
+MatrixXd Robot::RPitch(double theta){
+    MatrixXd Ry(3,3);
+    double c=cos(theta);
+    double s=sin(theta);
+    Ry<<c,0,s,0,1,0,-1*s,0,c;
+    return Ry;
+}
 
+MatrixXd Robot::RRoll(double phi){
+    MatrixXd R(3,3);
+    double c=cos(phi);
+    double s=sin(phi);
+    R<<1,0,0,0,c,-1*s,0,s,c;
+    return R;
+}
 
 Vector3d Robot::Rot2omega(Matrix3d rotation)
 {
@@ -390,9 +457,10 @@ double Robot::IKLevenbergMarquardt(Link Target,QString current)
         Jh=J.transpose()*we*J+wn*(Ek+0.02);
         gerr=J.transpose()*we*error;
         dq=Jh.lu().solve(gerr);
-        _joinAngles.conservativeResize(NoChange,_joinAngles.rows()+1);
+        _jointAngles.conservativeResize(NoChange,_jointAngles.rows()+1);
         MoveJoints(route,dq);
         ForwardKinematic(1);
+        qDebug()<<Links[1].JointAngle<<Links[2].JointAngle<<Links[3].JointAngle<<Links[4].JointAngle<<Links[5].JointAngle<<Links[6].JointAngle;
         error=CalcTaskSpaceError(Target,current);
         EK2=error.transpose()*we*error;
         Ek2=EK2(0);
@@ -405,11 +473,62 @@ double Robot::IKLevenbergMarquardt(Link Target,QString current)
         else {
             MoveJoints(route,-dq);
             ForwardKinematic(1);
+            qDebug()<<Links[1].JointAngle<<Links[2].JointAngle<<Links[3].JointAngle<<Links[4].JointAngle<<Links[5].JointAngle<<Links[6].JointAngle;
             return error.norm();
         }
 
     }
 
     return error.norm();
+qDebug()<<Links[1].JointAngle<<Links[2].JointAngle<<Links[3].JointAngle<<Links[4].JointAngle<<Links[5].JointAngle<<Links[6].JointAngle;
+}
+
+
+MatrixXd Robot::IKAnalytical(Link Body,double D,double E,double A,double B,Link Foot)
+{
+    ForwardKinematic(1);
+    MatrixXd DMatrix(3,1);
+
+    MatrixXd EMatrix(3,1);
+    DMatrix<<0,D,0;
+    EMatrix<<0,0,E;
+    MatrixXd Q(6,1);
+    double q1,q2,q3,q4,q5,q6,q6a,q7;
+    MatrixXd r=Foot.AttitudeInWorldCoordinate.transpose()*(Body.PositionInWorldCoordinate+Body.AttitudeInWorldCoordinate*DMatrix+Body.AttitudeInWorldCoordinate*EMatrix-Foot.PositionInWorldCoordinate);
+    double C=r.norm();
+    double c5=(C*C-A*A-B*B)/(2*A*B);
+    if (c5>=1) {
+        q5=0;
+        cout<<"c5 is larger than 1";
+    }
+    else if (c5<=-1) {
+        q5=M_PI;
+    }
+    else{
+
+        q5=acos(c5); //Knee Pitch
+    }
+    q6a=asin((A/C)*sin(M_PI-q5));//Ankle Pitch
+    q7=atan2(r(1,0),r(2,0));//Ankle Roll
+    if (q7>1*M_PI/2) {
+        q7=q7-M_PI;
+    }
+    else if (q7<-1*M_PI/2) {
+        q7=q7+M_PI;
+    }
+    double x=r(0,0);
+    double y=Sign(r(2,0))*sqrt(pow(r(1,0),2)+pow(r(2,0),2));
+    q6=-1*atan2(x,y)-q6a;//ankle pitch
+    MatrixXd Rpitch=RPitch(-1*q5-1*q6);
+    MatrixXd Rroll=RRoll(-1*q7);
+    MatrixXd R = Body.AttitudeInWorldCoordinate.transpose()*Foot.AttitudeInWorldCoordinate*Rroll*Rpitch; // hipZ*hipX*hipY
+   q2=atan2(-1*R(0,1),R(1,1));
+   double cz=cos(q2);
+   double sz=sin(q2);
+   q3=atan2(R(2,1),-1*R(0,1)*sz+R(1,1)*cz);
+   q4=atan2(-1*R(2,0),R(2,2));
+   Q<<q2,q3,q4,q5,q6,q7;
+   qDebug()<<q2<<q3<<q4<<q5<<q6<<q7;
+   return Q;
 
 }
